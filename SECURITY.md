@@ -30,6 +30,13 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+The integration needs no account, no password and no API key, and makes no
+network call outside Gladys: it reads the energy contracts of its own templates
+through the Gladys host API (prices, off-peak hours, chosen day: no meter, no
+consumption) and publishes the public holidays to the `holidays-fr` calendar.
+`/data` only holds `state.json`, the list of the holiday dates already
+published. The logs hold no personal data.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and EDF, Enedis and their services.

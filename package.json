@@ -1,8 +1,8 @@
 {
-  "name": "gladys-integration-template-js",
+  "name": "gladys-edf-zen-weekend",
   "version": "1.0.0",
   "private": true,
-  "description": "Official starter template to build an external integration for Gladys Assistant with the JavaScript SDK.",
+  "description": "EDF Zen Week-End contract templates for Gladys Assistant: weekends, French public holidays and off-peak hours priced by the Gladys energy engine.",
   "type": "module",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "node --test"
+    "test": "node --test",
+    "templates": "node scripts/templates.mjs"
   },
   "engines": {
     "node": ">=22"
@@ -20,10 +21,17 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "date-holidays": "^3.37.0",
+    "dayjs": "^1.11.23",
     "eslint": "^10.12.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.13.0",
+    "joi": "^17.13.8",
     "prettier": "^3.9.9"
   },
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guim31/gladys-edf-zen-weekend.git"
+  }
 }

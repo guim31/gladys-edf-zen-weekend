@@ -16,8 +16,9 @@ its only runtime dependency. It started from the official JavaScript template.
 ```bash
 npm install
 npm test                                  # node --test, the built-in runner
-node --test test/devices.test.js          # one file
-node --test --test-name-pattern "plug"    # tests whose name matches
+node --test test/templates.test.js        # one file
+node --test --test-name-pattern "holiday" # tests whose name matches
+npm run templates                         # rewrite the manifest energy_contracts field
 npm run lint                              # ESLint
 npm run format:check                      # Prettier, as the CI runs it
 npm run format                            # Prettier, fix in place
@@ -32,15 +33,21 @@ pushing.
 
 ```
 index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
-src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+src/app.js                        registers the handlers (connected, config, scene action, widget)
+src/templates.js                  the 4 contract templates + the holidays-fr calendar (manifest energy_contracts)
+src/tariffs/edf-<date>.json       the dated EDF price grid the templates are built from
+src/holidays.js                   French national public holidays (Easter computus), offline
+src/calendar.js                   publication of the holidays to the holidays-fr calendar, once each
+src/schedule.js                   the periods of a contract (holiday, weekend, chosen day, off-peak, peak)
+src/service.js                    contracts sync (10 min), clock, off_peak_started / off_peak_ended events
+src/widgets.js, src/scenes.js     "Off-peak hours" widget, "Read the EDF tariff period" scene action
+src/i18n.js, src/time.js          texts in 4 languages, local time arithmetic (Intl, DST)
+src/store.js, src/failures.js     /data/state.json, repeated failures logged once
+scripts/templates.mjs             `npm run templates`: writes energy_contracts into the manifest
+gladys-assistant-integration.json manifest: provider type, energy_contracts, triggers, action, widget
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (same sections)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+test/vendor/gladys-5.2.0/         unmodified pricing engine of Gladys 5.2.0, the tests price with it
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +77,11 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** exists in English, French, German and Spanish: manifest
+  texts (template inputs included), widget and scene texts, and
+  `docs/{en,fr,de,es}.md` with the same sections (`test/i18n.test.js`). The
+  rule labels of the tariffs are plain French strings: the core grammar has
+  one language per tariff.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -213,3 +223,51 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Intégration EDF Zen Week-End (13/10/2026)
+
+**Ce que fait le cœur, ce que fait l'intégration.** Le cœur 5.2.0 calcule tout seul les coûts
+d'un contrat `rules` (`server/lib/energy-contract/`) : l'intégration ne fournit que les modèles
+(champ `energy_contracts` du manifeste), le calendrier `holidays-fr` et les déclencheurs. Le cœur
+ne fournit **aucun calendrier de fériés**, par choix (spec `energy-contracts.md`, PR #3130) ; le
+catalogue communautaire `energy-contracts` est encore en v1 (CSV, sans calendriers ni Zen
+Week-End) ; un utilisateur ne peut pas créer de calendrier (API en lecture seule). D'où
+l'intégration.
+
+**Faits EDF** (PDF « grille de prix » et « fiche de présentation » de Zen Week-End et Zen
+Week-End Plus, téléchargés le 13/10/2026, grille applicable au 15/09/2026) : week-end du samedi
+0 h au dimanche 24 h ; **jours fériés nationaux seulement** (pas ceux d'Alsace-Moselle) ; même prix
+réduit pour les HC de semaine, le week-end, les fériés et le jour choisi ; abonnement identique
+pour toutes les options à puissance égale ; option Week-End de 3 à 36 kVA, les autres de 6 à
+36 kVA ; jour choisi de Plus : lundi, mercredi ou vendredi, modifiable deux fois par an. Option
+Flex (jours « sobriété » annoncés par EDF) non couverte.
+
+**Pièges du cœur 5.2.0 découverts ici**
+
+- Un modèle d'intégration n'a **pas de champ `subscribed_power`** (`TEMPLATE_FIELDS` de
+  `validateEnergyContracts`), contrairement aux modèles du catalogue (un modèle par puissance) :
+  l'abonnement est une saisie `number` pré-remplie (6 kVA), la grille par puissance dans sa
+  description. 4 options × 9 puissances dépasserait la limite de 20 modèles.
+- Les **libellés de règles** (`label`) sont des chaînes simples, pas des objets multilingues : le
+  widget « Prix de l'électricité » et le déclencheur « Changement de prix » du cœur les montrent
+  tels quels. Ici en français.
+- Une saisie `select` est affichée par sa **valeur brute** dans l'assistant (pas de libellé
+  d'option) : `chosen_day` vaut `mon`/`wed`/`fri`, la correspondance est dans le libellé.
+- Un **placeholder seul** (`"{{input:off_peak_slots}}"`) est remplacé par la valeur quel que soit
+  son type (tableau de créneaux, jour de la semaine) ; la validation du manifeste substitue les
+  défauts.
+- `POST /energy/calendar` n'accepte que de **−5 ans à +7 jours** ; le faux Gladys du SDK ne le
+  vérifie pas, et lit une `date` comme un minuit UTC (le vrai cœur : minuit du fuseau du
+  calendrier). Le cœur **purge** les entrées plus vieilles que la plus vieille consommation : une
+  entrée purgée republiée compte comme « changée » et relance un recalcul. D'où la mémoire des dates
+  publiées dans `/data/state.json`.
+- `getCurrentPrice` ne regarde qu'à **48 h** (`horizon_hours`) : le widget du cœur n'annonce pas le
+  changement d'un mercredi pour l'option Week-End. Le déclencheur « Changement de prix » tourne
+  toutes les 30 minutes et part aussi sur un simple changement de libellé (week-end → heures
+  creuses du lundi) : d'où nos déclencheurs à la minute, sur la seule bascule réduit / plein tarif.
+- Le moteur renvoie les coûts **triés par début d'intervalle**, pas dans l'ordre demandé.
+- `getEnergyContracts()` ne rend ni nom ni compteur : le widget décrit le contrat actif le plus
+  récent ; plusieurs contrats aux mêmes horaires ne déclenchent qu'une fois.
+
+**Mettre à jour les prix** : nouveau fichier `src/tariffs/edf-<date>.json`, `TARIFF` dans
+`src/templates.js`, `npm run templates`, `npm test`. La `version` des modèles suit la date.

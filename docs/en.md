@@ -1,61 +1,170 @@
-# Demo Devices Template
+# EDF Zen Week-End
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Gladys computes the cost of your electricity from your meter and your contract. This integration adds the
+**EDF Zen Week-End** and **Zen Week-End Plus** contracts (French market offers of EDF) to the contract
+wizard of Gladys, so that every kilowatt-hour is priced right:
 
-## What you get
+- the **whole weekend** at the reduced price, from Saturday 00:00 to Sunday 24:00;
+- the **national public holidays** at the reduced price, computed offline by the integration;
+- your **Enedis off-peak hours** on the other days, with the off-peak options (8 hours a day, the ones on
+  your bill);
+- the **chosen day** (Monday, Wednesday or Friday) of the Plus offer;
+- the **monthly subscription** of your subscribed power.
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+It also adds **scene triggers** at the exact minute the reduced price starts or ends (to start the water
+heater or the car charge), a **scene action** that tells your scenes the period in force, and an
+**"Off-peak hours" dashboard widget**.
 
-## Configuration
+> Tested with its automated test suite and the pricing engine of Gladys 5.2.0, not yet on a real Gladys
+> instance: feedback welcome on the Gladys forum or in the GitHub issues.
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+## What you need
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+- Gladys Assistant **5.2.0** or later (energy contracts).
+- An electric meter in Gladys whose consumption is known every 30 minutes (Energy Monitoring
+  integration: Linky through Enedis, a Lixee or Tasmota index…).
+- An EDF Zen Week-End or Zen Week-End Plus contract. No account, no API key, no network access: everything
+  is computed on your Gladys.
 
-## Actions
+## Installation and setup
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+Install the integration (**Integrations → Install from GitHub**, address
+`https://github.com/guim31/gladys-edf-zen-weekend`). There is nothing to fill in on its configuration
+page except the language of the scene texts.
 
-## Scenes
+### Create the contract
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+1. Open **Integrations → Energy Monitoring → Contracts** and create a contract.
+2. Pick one of the four **EDF Zen Week-End** templates (see below), then your electric meter and the start
+   date of your contract.
+3. Check the pre-filled values against your bill: off-peak hours, prices, subscription. Save.
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+Gladys then prices every half-hour of consumption with this contract, from its start date, including the
+past.
 
-## Dashboard
+### Which template?
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+| Template                                         | Reduced price                                               |
+| ------------------------------------------------ | ----------------------------------------------------------- |
+| EDF Zen Week-End (Week-End option)               | weekend and public holidays                                 |
+| EDF Zen Week-End (Off-peak hours + weekend)      | weekend, public holidays, Enedis off-peak hours             |
+| EDF Zen Week-End Plus (weekend + chosen day)     | weekend, public holidays, chosen day                        |
+| EDF Zen Week-End Plus (off-peak + weekend + day) | weekend, public holidays, chosen day, Enedis off-peak hours |
+
+The **Flex** option of Zen Week-End is not offered: its "sobriety days" are announced by EDF day by day,
+and no Gladys calendar provides them yet.
+
+### Prices and subscription
+
+The templates are pre-filled with the official EDF price grids **applicable from 15 September 2026**
+(prices including taxes, for new subscriptions):
+
+| Option                            | Full price (EUR/kWh) | Reduced price (EUR/kWh) |
+| --------------------------------- | -------------------- | ----------------------- |
+| Zen Week-End, Week-End            | 0.2285               | 0.1710                  |
+| Zen Week-End, off-peak + weekend  | 0.2359               | 0.1762                  |
+| Zen Week-End Plus, weekend + day  | 0.2259               | 0.1691                  |
+| Zen Week-End Plus, off-peak + day | 0.2314               | 0.1731                  |
+
+The monthly subscription depends on your subscribed power, the same for every option (EUR/month including
+taxes): 3 kVA 12.13 (Week-End option only) · 6 kVA 15.86 · 9 kVA 19.88 · 12 kVA 23.76 · 15 kVA 27.40 ·
+18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88. The template is pre-filled for 6 kVA: type
+yours.
+
+The **off-peak hours** are set by Enedis for each home: they are on your bill and on enedis.fr. The
+template is pre-filled with 04:00-08:00 and 12:30-16:30; most homes have night hours (for example
+22:00-06:00): select yours in the grid.
+
+### Language
+
+The **Language of the scene texts** field (French by default) sets the language of the period names and
+times sent to the scenes. The widget follows the language of each user. The names of the periods shown by
+the "Electricity price" widget of Gladys come from the contract and stay in French ("Heures creuses",
+"Week-end", "Jour férié"…), the words of the bill.
+
+## What Gladys computes
+
+The contract is priced by Gladys itself, with the rules of the template:
+
+1. a **public holiday** (national holidays only: Good Friday and 26 December, holidays of Alsace-Moselle
+   only, are not reduced by EDF) is reduced from 00:00 to 24:00;
+2. the **weekend** is reduced from Saturday 00:00 to Sunday 24:00;
+3. the **chosen day** of the Plus offer is reduced from 00:00 to 24:00;
+4. the **off-peak hours** are reduced on the other days;
+5. any other time is at the full price.
+
+The integration publishes the public holidays to the `holidays-fr` calendar of Gladys, about a week ahead
+(Gladys refuses dates further away), and back to the start of your contract. If the integration is
+stopped, a holiday it could not publish in time is priced like a weekday; once published, Gladys
+recalculates the costs. Other templates may read the same `holidays-fr` calendar.
+
+## Dashboard widget
+
+**Off-peak hours** shows the period in force (off-peak, peak, weekend, public holiday, chosen day), the
+current price, the time left until the next change, the next change, today's and tomorrow's off-peak hours
+and the next public holiday. It describes your latest active EDF Zen Week-End contract.
+
+It completes the **Electricity price** widget of Gladys, which shows the current price and the next one over the
+next 48 hours.
+
+## Scene triggers
+
+- **Off-peak hours start**: the reduced price begins, at the exact minute. Filter: the period that begins
+  (off-peak hours, weekend, public holiday, chosen day; empty for any). Variables: period (key and name),
+  price, minutes until the next change, time of the next change.
+- **Off-peak hours end**: the full price is back. Variables: price, minutes until the reduced price returns,
+  its time, the next reduced period (key and name).
+
+A switch between two reduced periods (Sunday evening to Monday's night off-peak hours) fires nothing: the
+price stays reduced. The core trigger **Electricity price changed** of Gladys also exists; it runs every 30
+minutes and fires on every price or name change, including that one.
+
+## Scene action "Read the EDF tariff period"
+
+Gives the next actions of the scene: `off_peak` (true or false), the period (key and name), the current
+price, the minutes until the next change and its time. It fails when no active contract uses a template of
+the integration.
+
+## Scene examples
+
+- **Water heater**: trigger "Off-peak hours start" (period: off-peak hours) → turn the water heater plug
+  on; trigger "Off-peak hours end" → turn it off.
+- **Car charge on reduced price only**: trigger "the car is plugged in" → action "Read the EDF tariff
+  period" → continue only if `off_peak` is true → start the charge.
+- **Washing machine**: action "Read the EDF tariff period", continue only if the minutes until the change
+  are 120 or more, then start the machine.
+- **Notification**: trigger "Off-peak hours end" → send "Full price until {{next_change}}".
+
+## When EDF changes its prices
+
+EDF reviews the prices of its market offers up to twice a year. A new grid becomes a new version of the
+integration, with templates dated by the grid. Gladys never changes a contract on its own: correct the
+prices of your contract, or create a new contract from the updated template from the date of the change.
+Always trust your bill over the pre-filled values.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **No template in the wizard**: Gladys 5.2.0 or later is required, and the integration must be installed.
+- **A holiday priced at the full price**: check that the integration was running the week before; in its
+  logs, "Published … public holiday(s)" lists the publications.
+- **"Holiday calendar: fed by another integration"** in the widget: another integration already provides
+  `holidays-fr`; the templates read it.
+- **Wrong off-peak hours**: edit the contract in Energy Monitoring → Contracts. The integration reads the
+  contracts again within 10 minutes.
+- **No scene event**: the integration fires none when it notices a change more than 15 minutes late (Gladys
+  unreachable, machine asleep).
+
+## Limits
+
+- Prices are those of EDF on 15 September 2026 for new subscriptions; an older contract may have others.
+- The self-producer surcharge (9.84 EUR/year excluding taxes) is not included.
+- The Flex option is not supported.
+- The off-peak hours follow the 30-minute grid of the Gladys wizard.
+- Changing the chosen day (twice a contractual year) means a new contract from the date of the change.
+- Not affiliated with EDF or Enedis. "EDF" and "Zen Week-End" are trademarks of their owners.
+
+## Credits
+
+- Prices: EDF price grids "Zen Week-End" and "Zen Week-End Plus", applicable from 15 September 2026
+  (particulier.edf.fr).
+- Pricing engine and contract wizard: Gladys Assistant 5.2.0 (Apache 2.0).
