@@ -1,0 +1,41 @@
+{
+  "applicable_from": "2026-09-15",
+  "currency": "EUR",
+  "sources": [
+    "https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/grille-prix-zen-week-end.pdf",
+    "https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/grille-prix-zen-week-end-plus.pdf"
+  ],
+  "subscription_per_month": {
+    "3": 12.13,
+    "6": 15.86,
+    "9": 19.88,
+    "12": 23.76,
+    "15": 27.4,
+    "18": 31.14,
+    "24": 39.14,
+    "30": 46.47,
+    "36": 53.88
+  },
+  "options": {
+    "zen-weekend": {
+      "powers": [3, 6, 9, 12, 15, 18, 24, 30, 36],
+      "peak_price": 0.2285,
+      "off_peak_price": 0.171
+    },
+    "zen-weekend-off-peak": {
+      "powers": [6, 9, 12, 15, 18, 24, 30, 36],
+      "peak_price": 0.2359,
+      "off_peak_price": 0.1762
+    },
+    "zen-weekend-plus": {
+      "powers": [6, 9, 12, 15, 18, 24, 30, 36],
+      "peak_price": 0.2259,
+      "off_peak_price": 0.1691
+    },
+    "zen-weekend-plus-off-peak": {
+      "powers": [6, 9, 12, 15, 18, 24, 30, 36],
+      "peak_price": 0.2314,
+      "off_peak_price": 0.1731
+    }
+  }
+}

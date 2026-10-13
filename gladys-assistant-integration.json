@@ -1,177 +1,1035 @@
 {
   "manifest_version": 1,
-  "type": "device",
-  "name": "Demo Devices Template",
+  "type": "provider",
+  "name": "EDF Zen Week-End",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "EDF Zen Week-End contract templates: weekends, public holidays and off-peak hours priced right.",
+    "fr": "Le contrat EDF Zen Week-End dans Gladys : week-ends, jours fériés et heures creuses au bon prix.",
+    "de": "EDF-Vertrag Zen Week-End in Gladys: Wochenende, Feiertage und Nebenzeiten zum richtigen Preis.",
+    "es": "Contrato EDF Zen Week-End en Gladys: fines de semana, festivos y horas valle al precio correcto."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
-  "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "docker_image": "ghcr.io/guim31/gladys-edf-zen-weekend:1.0.0",
+  "gladys_version": ">=5.2.0",
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-edf-zen-weekend/main/cover.png",
+  "categories": ["energy"],
+  "transports": ["local"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "How it works",
+        "fr": "Fonctionnement",
+        "de": "So funktioniert es",
+        "es": "Funcionamiento"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Nothing to set here. Open Integrations → Energy Monitoring → Contracts, create a contract from an EDF Zen Week-End template and check its prices and off-peak hours. Gladys prices your consumption; this integration feeds the French public holidays.",
+        "fr": "Rien à régler ici. Ouvrez Intégrations → Suivi de l'énergie → Contrats, créez un contrat à partir d'un modèle EDF Zen Week-End et vérifiez ses prix et ses heures creuses. Gladys calcule le coût ; cette intégration fournit les jours fériés.",
+        "de": "Hier gibt es nichts einzustellen. Öffne Integrationen → Energieüberwachung → Verträge, lege einen Vertrag aus einer EDF-Zen-Week-End-Vorlage an und prüfe Preise und Nebenzeiten. Gladys berechnet die Kosten, diese Integration liefert die Feiertage.",
+        "es": "Nada que configurar aquí. Abra Integraciones → Supervisión de energía → Contratos, cree un contrato a partir de una plantilla EDF Zen Week-End y revise sus precios y horas valle. Gladys calcula el coste; esta integración aporta los festivos."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-edf-zen-weekend#readme",
+          "label": {
+            "en": "Documentation",
+            "fr": "Documentation",
+            "de": "Dokumentation",
+            "es": "Documentación"
+          }
+        },
+        {
+          "url": "https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/grille-prix-zen-week-end.pdf",
+          "label": {
+            "en": "EDF price grid",
+            "fr": "Grille de prix EDF",
+            "de": "EDF-Preistabelle",
+            "es": "Tabla de precios EDF"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
-      },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
-      },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
+      "key": "language",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
-      "required": false,
-      "default": "celsius",
-      "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
-      ]
-    },
-    {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "label": {
+        "en": "Language of the scene texts",
+        "fr": "Langue des textes des scènes",
+        "de": "Sprache der Szenentexte",
+        "es": "Idioma de los textos de escenas"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Language of the period names and times sent to scenes (triggers and the scene action). The widget follows the language of each user.",
+        "fr": "Langue des noms de période et des heures envoyés aux scènes (déclencheurs et action de scène). Le widget suit la langue de chaque utilisateur.",
+        "de": "Sprache der Zeitraumnamen und Uhrzeiten, die an Szenen gehen (Auslöser und Szenenaktion). Das Widget folgt der Sprache jedes Benutzers.",
+        "es": "Idioma de los nombres de periodo y las horas enviados a las escenas (disparadores y acción de escena). El widget sigue el idioma de cada usuario."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
-    }
-  ],
-  "actions": [
-    {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
+      "default": "fr",
+      "options": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
         }
       ]
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "off_peak_started",
+      "label": {
+        "en": "Off-peak hours start",
+        "fr": "Début des heures creuses",
+        "de": "Beginn der Nebenzeit",
+        "es": "Inicio de las horas valle"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "The reduced price of your EDF Zen Week-End contract begins: off-peak hours, weekend, public holiday or chosen day. At the exact minute.",
+        "fr": "Le prix réduit de votre contrat EDF Zen Week-End commence : heures creuses, week-end, jour férié ou jour choisi. À la minute près.",
+        "de": "Der günstigere Preis deines EDF-Zen-Week-End-Vertrags beginnt: Nebenzeit, Wochenende, Feiertag oder gewählter Tag. Auf die Minute genau.",
+        "es": "Empieza el precio reducido de su contrato EDF Zen Week-End: horas valle, fin de semana, festivo o día elegido. Al minuto."
       },
       "fields": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
-        },
-        {
-          "key": "target",
+          "key": "period",
           "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "label": {
+            "en": "Period that begins (empty: any)",
+            "fr": "Période qui commence (vide : toutes)",
+            "de": "Beginnender Zeitraum (leer: alle)",
+            "es": "Periodo que empieza (vacío: todos)"
+          },
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "off_peak_hours",
+              "label": {
+                "en": "Off-peak hours (weekdays)",
+                "fr": "Heures creuses (en semaine)",
+                "de": "Nebenzeit (werktags)",
+                "es": "Horas valle (entre semana)"
+              }
+            },
+            {
+              "value": "weekend",
+              "label": {
+                "en": "Weekend",
+                "fr": "Week-end",
+                "de": "Wochenende",
+                "es": "Fin de semana"
+              }
+            },
+            {
+              "value": "holiday",
+              "label": {
+                "en": "Public holiday",
+                "fr": "Jour férié",
+                "de": "Feiertag",
+                "es": "Festivo"
+              }
+            },
+            {
+              "value": "chosen_day",
+              "label": {
+                "en": "Chosen day (Plus offer)",
+                "fr": "Jour choisi (offre Plus)",
+                "de": "Gewählter Tag (Angebot Plus)",
+                "es": "Día elegido (oferta Plus)"
+              }
+            }
           ]
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "period",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Period (key)",
+            "fr": "Période (clé)",
+            "de": "Zeitraum (Schlüssel)",
+            "es": "Periodo (clave)"
+          },
+          "description": {
+            "en": "off_peak_hours, weekend, holiday or chosen_day.",
+            "fr": "off_peak_hours, weekend, holiday ou chosen_day.",
+            "de": "off_peak_hours, weekend, holiday oder chosen_day.",
+            "es": "off_peak_hours, weekend, holiday o chosen_day."
+          }
+        },
+        {
+          "key": "period_label",
+          "type": "string",
+          "label": {
+            "en": "Period name",
+            "fr": "Nom de la période",
+            "de": "Name des Zeitraums",
+            "es": "Nombre del periodo"
+          }
+        },
+        {
+          "key": "price",
+          "type": "number",
+          "label": {
+            "en": "Price now (EUR/kWh)",
+            "fr": "Prix actuel (€/kWh)",
+            "de": "Aktueller Preis (€/kWh)",
+            "es": "Precio actual (€/kWh)"
+          },
+          "description": {
+            "en": "The price of your contract for the period that begins.",
+            "fr": "Le prix de votre contrat pour la période qui commence.",
+            "de": "Der Preis deines Vertrags für den beginnenden Zeitraum.",
+            "es": "El precio de su contrato para el periodo que empieza."
+          }
+        },
+        {
+          "key": "minutes_until_change",
+          "type": "number",
+          "label": {
+            "en": "Minutes until the next change",
+            "fr": "Minutes avant le prochain changement",
+            "de": "Minuten bis zum nächsten Wechsel",
+            "es": "Minutos hasta el próximo cambio"
+          }
+        },
+        {
+          "key": "next_change",
+          "type": "string",
+          "label": {
+            "en": "Next change (time)",
+            "fr": "Prochain changement (heure)",
+            "de": "Nächster Wechsel (Uhrzeit)",
+            "es": "Próximo cambio (hora)"
+          },
+          "description": {
+            "en": "For example \"16:30\" or \"Mon 04:00\", in the language of the configuration.",
+            "fr": "Par exemple « 16:30 » ou « lun. 04:00 », dans la langue de la configuration.",
+            "de": "Zum Beispiel „16:30“ oder „Mo 04:00“, in der Sprache der Konfiguration.",
+            "es": "Por ejemplo «16:30» o «lun 04:00», en el idioma de la configuración."
+          }
+        }
+      ]
+    },
+    {
+      "key": "off_peak_ended",
+      "label": {
+        "en": "Off-peak hours end",
+        "fr": "Fin des heures creuses",
+        "de": "Ende der Nebenzeit",
+        "es": "Fin de las horas valle"
+      },
+      "description": {
+        "en": "The full price of your EDF Zen Week-End contract is back (peak hours, or the weekday price). At the exact minute.",
+        "fr": "Le plein tarif de votre contrat EDF Zen Week-End revient (heures pleines, ou prix de semaine). À la minute près.",
+        "de": "Der volle Preis deines EDF-Zen-Week-End-Vertrags gilt wieder (Hauptzeit oder Werktagspreis). Auf die Minute genau.",
+        "es": "Vuelve el precio completo de su contrato EDF Zen Week-End (horas punta o precio entre semana). Al minuto."
+      },
+      "variables": [
+        {
+          "key": "price",
+          "type": "number",
+          "label": {
+            "en": "Price now (EUR/kWh)",
+            "fr": "Prix actuel (€/kWh)",
+            "de": "Aktueller Preis (€/kWh)",
+            "es": "Precio actual (€/kWh)"
+          },
+          "description": {
+            "en": "The price of your contract for the period that begins.",
+            "fr": "Le prix de votre contrat pour la période qui commence.",
+            "de": "Der Preis deines Vertrags für den beginnenden Zeitraum.",
+            "es": "El precio de su contrato para el periodo que empieza."
+          }
+        },
+        {
+          "key": "minutes_until_change",
+          "type": "number",
+          "label": {
+            "en": "Minutes until the next change",
+            "fr": "Minutes avant le prochain changement",
+            "de": "Minuten bis zum nächsten Wechsel",
+            "es": "Minutos hasta el próximo cambio"
+          }
+        },
+        {
+          "key": "next_change",
+          "type": "string",
+          "label": {
+            "en": "Next change (time)",
+            "fr": "Prochain changement (heure)",
+            "de": "Nächster Wechsel (Uhrzeit)",
+            "es": "Próximo cambio (hora)"
+          },
+          "description": {
+            "en": "For example \"16:30\" or \"Mon 04:00\", in the language of the configuration.",
+            "fr": "Par exemple « 16:30 » ou « lun. 04:00 », dans la langue de la configuration.",
+            "de": "Zum Beispiel „16:30“ oder „Mo 04:00“, in der Sprache der Konfiguration.",
+            "es": "Por ejemplo «16:30» o «lun 04:00», en el idioma de la configuración."
+          }
+        },
+        {
+          "key": "next_period",
+          "type": "string",
+          "label": {
+            "en": "Next reduced period (key)",
+            "fr": "Prochaine période réduite (clé)",
+            "de": "Nächster günstiger Zeitraum (Schlüssel)",
+            "es": "Próximo periodo reducido (clave)"
+          }
+        },
+        {
+          "key": "next_period_label",
+          "type": "string",
+          "label": {
+            "en": "Next reduced period (name)",
+            "fr": "Prochaine période réduite (nom)",
+            "de": "Nächster günstiger Zeitraum (Name)",
+            "es": "Próximo periodo reducido (nombre)"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "get_tariff_period",
+      "label": {
+        "en": "Read the EDF tariff period",
+        "fr": "Lire la période tarifaire EDF",
+        "de": "EDF-Tarifzeitraum lesen",
+        "es": "Leer el periodo tarifario EDF"
       },
-      "timeout_seconds": 15,
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ],
+      "description": {
+        "en": "Tells the next actions whether the reduced price is in force, at what price and until when. Fails when no contract uses a template of the integration.",
+        "fr": "Indique aux actions suivantes si le prix réduit est en vigueur, à quel prix et jusqu'à quand. Échoue si aucun contrat n'utilise un modèle de l'intégration.",
+        "de": "Sagt den folgenden Aktionen, ob der günstigere Preis gilt, zu welchem Preis und bis wann. Schlägt fehl, wenn kein Vertrag eine Vorlage der Integration nutzt.",
+        "es": "Indica a las acciones siguientes si el precio reducido está vigente, a qué precio y hasta cuándo. Falla si ningún contrato usa una plantilla de la integración."
+      },
+      "timeout_seconds": 10,
       "outputs": [
         {
-          "key": "signalled",
+          "key": "off_peak",
           "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "label": {
+            "en": "Reduced price now",
+            "fr": "Prix réduit en ce moment",
+            "de": "Günstigerer Preis jetzt",
+            "es": "Precio reducido ahora"
+          }
+        },
+        {
+          "key": "period",
+          "type": "string",
+          "label": {
+            "en": "Period (key)",
+            "fr": "Période (clé)",
+            "de": "Zeitraum (Schlüssel)",
+            "es": "Periodo (clave)"
+          },
+          "description": {
+            "en": "peak, off_peak_hours, weekend, holiday or chosen_day.",
+            "fr": "peak, off_peak_hours, weekend, holiday ou chosen_day.",
+            "de": "peak, off_peak_hours, weekend, holiday oder chosen_day.",
+            "es": "peak, off_peak_hours, weekend, holiday o chosen_day."
+          }
+        },
+        {
+          "key": "period_label",
+          "type": "string",
+          "label": {
+            "en": "Period name",
+            "fr": "Nom de la période",
+            "de": "Name des Zeitraums",
+            "es": "Nombre del periodo"
+          }
+        },
+        {
+          "key": "price",
+          "type": "number",
+          "label": {
+            "en": "Price now (EUR/kWh)",
+            "fr": "Prix actuel (€/kWh)",
+            "de": "Aktueller Preis (€/kWh)",
+            "es": "Precio actual (€/kWh)"
+          },
+          "description": {
+            "en": "The price of your contract now.",
+            "fr": "Le prix de votre contrat en ce moment.",
+            "de": "Der aktuelle Preis deines Vertrags.",
+            "es": "El precio actual de su contrato."
+          }
+        },
+        {
+          "key": "minutes_until_change",
+          "type": "number",
+          "label": {
+            "en": "Minutes until the next change",
+            "fr": "Minutes avant le prochain changement",
+            "de": "Minuten bis zum nächsten Wechsel",
+            "es": "Minutos hasta el próximo cambio"
+          }
+        },
+        {
+          "key": "next_change",
+          "type": "string",
+          "label": {
+            "en": "Next change (time)",
+            "fr": "Prochain changement (heure)",
+            "de": "Nächster Wechsel (Uhrzeit)",
+            "es": "Próximo cambio (hora)"
+          },
+          "description": {
+            "en": "For example \"16:30\" or \"Mon 04:00\", in the language of the configuration.",
+            "fr": "Par exemple « 16:30 » ou « lun. 04:00 », dans la langue de la configuration.",
+            "de": "Zum Beispiel „16:30“ oder „Mo 04:00“, in der Sprache der Konfiguration.",
+            "es": "Por ejemplo «16:30» o «lun 04:00», en el idioma de la configuración."
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "off_peak_hours",
+      "label": {
+        "en": "Off-peak hours",
+        "fr": "Heures creuses",
+        "de": "Nebenzeiten",
+        "es": "Horas valle"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Off-peak or peak now and until when, today's and tomorrow's off-peak hours, next holiday.",
+        "fr": "Heures creuses ou pleines, jusqu'à quand, celles d'aujourd'hui et de demain, prochain jour férié.",
+        "de": "Neben- oder Hauptzeit jetzt und bis wann, Nebenzeiten heute und morgen, nächster Feiertag.",
+        "es": "Horas valle o punta ahora y hasta cuándo, las de hoy y mañana, próximo festivo."
+      },
+      "icon": "clock"
     }
-  ]
+  ],
+  "energy_contracts": {
+    "templates": [
+      {
+        "key": "edf-zen-weekend",
+        "name": {
+          "en": "EDF Zen Week-End (Week-End option)",
+          "fr": "EDF Zen Week-End (option Week-End)",
+          "de": "EDF Zen Week-End (Option Week-End)",
+          "es": "EDF Zen Week-End (opción Week-End)"
+        },
+        "description": {
+          "en": "Reduced price all weekend and on national public holidays, one price on the other days.",
+          "fr": "Prix réduit tout le week-end et les jours fériés nationaux, un seul prix les autres jours.",
+          "de": "Günstigerer Preis am ganzen Wochenende und an landesweiten Feiertagen, ein Preis an den übrigen Tagen.",
+          "es": "Precio reducido todo el fin de semana y los festivos nacionales, un único precio los demás días."
+        },
+        "country": "FR",
+        "currency": "EUR",
+        "timezone": "Europe/Paris",
+        "pricing_mode": "rules",
+        "version": "2026-09-15",
+        "calendars": ["holidays-fr"],
+        "inputs": [
+          {
+            "key": "peak_price",
+            "type": "number",
+            "unit": "EUR/kWh",
+            "label": {
+              "en": "Weekday price",
+              "fr": "Prix en semaine",
+              "de": "Preis werktags",
+              "es": "Precio entre semana"
+            },
+            "description": {
+              "en": "EDF price including taxes from 2026-09-15. Correct it if your bill shows another one.",
+              "fr": "Prix EDF TTC au 2026-09-15. Corrigez-le si votre facture en indique un autre.",
+              "de": "EDF-Bruttopreis ab 2026-09-15. Korrigiere ihn, wenn deine Rechnung einen anderen zeigt.",
+              "es": "Precio EDF con impuestos desde el 2026-09-15. Corríjalo si su factura indica otro."
+            },
+            "default": 0.2285,
+            "required": true
+          },
+          {
+            "key": "off_peak_price",
+            "type": "number",
+            "unit": "EUR/kWh",
+            "label": {
+              "en": "Weekend and holiday price",
+              "fr": "Prix week-end et jours fériés",
+              "de": "Preis Wochenende und Feiertage",
+              "es": "Precio fin de semana y festivos"
+            },
+            "description": {
+              "en": "EDF price including taxes from 2026-09-15, the same in every reduced period of the option.",
+              "fr": "Prix EDF TTC au 2026-09-15, le même pour toutes les périodes réduites de l'option.",
+              "de": "EDF-Bruttopreis ab 2026-09-15, gleich in allen günstigeren Zeiten der Option.",
+              "es": "Precio EDF con impuestos desde el 2026-09-15, el mismo en todos los periodos reducidos de la opción."
+            },
+            "default": 0.171,
+            "required": true
+          },
+          {
+            "key": "subscription",
+            "type": "number",
+            "unit": "EUR/month",
+            "label": {
+              "en": "Monthly subscription (by subscribed power)",
+              "fr": "Abonnement mensuel (selon la puissance)",
+              "de": "Monatliche Grundgebühr (nach Anschlussleistung)",
+              "es": "Abono mensual (según la potencia contratada)"
+            },
+            "description": {
+              "en": "Pre-filled for 6 kVA. EDF grid in EUR/month including taxes: 3 kVA 12.13 · 6 kVA 15.86 · 9 kVA 19.88 · 12 kVA 23.76 · 15 kVA 27.40 · 18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88.",
+              "fr": "Pré-rempli pour 6 kVA. Grille EDF en €/mois TTC : 3 kVA 12,13 · 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+              "de": "Vorbelegt für 6 kVA. EDF-Tabelle in €/Monat brutto: 3 kVA 12,13 · 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+              "es": "Prerrellenado para 6 kVA. Tabla EDF en €/mes con impuestos: 3 kVA 12,13 · 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88."
+            },
+            "default": 15.86,
+            "required": true
+          }
+        ],
+        "tariff": {
+          "tariff_version": 1,
+          "calendars": ["holidays-fr"],
+          "components": [
+            {
+              "key": "energy",
+              "kind": "consumption",
+              "rules": [
+                {
+                  "label": "Jour férié",
+                  "when": {
+                    "calendar": {
+                      "holidays-fr": "holiday"
+                    }
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Week-end",
+                  "when": {
+                    "weekdays": ["sat", "sun"]
+                  },
+                  "price": "{{input:off_peak_price}}"
+                }
+              ],
+              "fallback": {
+                "label": "Semaine",
+                "price": "{{input:peak_price}}"
+              }
+            },
+            {
+              "key": "subscription",
+              "kind": "fixed",
+              "amount": "{{input:subscription}}",
+              "per": "month"
+            }
+          ]
+        }
+      },
+      {
+        "key": "edf-zen-weekend-off-peak",
+        "name": {
+          "en": "EDF Zen Week-End (Off-peak hours + weekend)",
+          "fr": "EDF Zen Week-End (option Heures Creuses + WE)",
+          "de": "EDF Zen Week-End (Nebenzeiten + Wochenende)",
+          "es": "EDF Zen Week-End (horas valle + fin de semana)"
+        },
+        "description": {
+          "en": "Off-peak price all weekend, on national public holidays and during your Enedis off-peak hours on the other days.",
+          "fr": "Prix heures creuses tout le week-end, les jours fériés nationaux et pendant vos heures creuses Enedis les autres jours.",
+          "de": "Nebenzeitpreis am ganzen Wochenende, an landesweiten Feiertagen und an den übrigen Tagen während deiner Enedis-Nebenzeiten.",
+          "es": "Precio de horas valle todo el fin de semana, los festivos nacionales y durante sus horas valle Enedis los demás días."
+        },
+        "country": "FR",
+        "currency": "EUR",
+        "timezone": "Europe/Paris",
+        "pricing_mode": "rules",
+        "version": "2026-09-15",
+        "calendars": ["holidays-fr"],
+        "inputs": [
+          {
+            "key": "off_peak_slots",
+            "type": "time_intervals",
+            "label": {
+              "en": "Enedis off-peak hours (weekdays)",
+              "fr": "Heures creuses Enedis (en semaine)",
+              "de": "Enedis-Nebenzeiten (werktags)",
+              "es": "Horas valle Enedis (entre semana)"
+            },
+            "description": {
+              "en": "Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.",
+              "fr": "Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.",
+              "de": "Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.",
+              "es": "Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30."
+            },
+            "default": [
+              ["04:00", "08:00"],
+              ["12:30", "16:30"]
+            ],
+            "required": true
+          },
+          {
+            "key": "peak_price",
+            "type": "number",
+            "unit": "EUR/kWh",
+            "label": {
+              "en": "Peak hours price",
+              "fr": "Prix heures pleines",
+              "de": "Preis Hauptzeit",
+              "es": "Precio horas punta"
+            },
+            "description": {
+              "en": "EDF price including taxes from 2026-09-15. Correct it if your bill shows another one.",
+              "fr": "Prix EDF TTC au 2026-09-15. Corrigez-le si votre facture en indique un autre.",
+              "de": "EDF-Bruttopreis ab 2026-09-15. Korrigiere ihn, wenn deine Rechnung einen anderen zeigt.",
+              "es": "Precio EDF con impuestos desde el 2026-09-15. Corríjalo si su factura indica otro."
+            },
+            "default": 0.2359,
+            "required": true
+          },
+          {
+            "key": "off_peak_price",
+            "type": "number",
+            "unit": "EUR/kWh",
+            "label": {
+              "en": "Off-peak, weekend and holiday price",
+              "fr": "Prix heures creuses, week-end et fériés",
+              "de": "Preis Nebenzeit, Wochenende und Feiertage",
+              "es": "Precio horas valle, fin de semana y festivos"
+            },
+            "description": {
+              "en": "EDF price including taxes from 2026-09-15, the same in every reduced period of the option.",
+              "fr": "Prix EDF TTC au 2026-09-15, le même pour toutes les périodes réduites de l'option.",
+              "de": "EDF-Bruttopreis ab 2026-09-15, gleich in allen günstigeren Zeiten der Option.",
+              "es": "Precio EDF con impuestos desde el 2026-09-15, el mismo en todos los periodos reducidos de la opción."
+            },
+            "default": 0.1762,
+            "required": true
+          },
+          {
+            "key": "subscription",
+            "type": "number",
+            "unit": "EUR/month",
+            "label": {
+              "en": "Monthly subscription (by subscribed power)",
+              "fr": "Abonnement mensuel (selon la puissance)",
+              "de": "Monatliche Grundgebühr (nach Anschlussleistung)",
+              "es": "Abono mensual (según la potencia contratada)"
+            },
+            "description": {
+              "en": "Pre-filled for 6 kVA. EDF grid in EUR/month including taxes: 6 kVA 15.86 · 9 kVA 19.88 · 12 kVA 23.76 · 15 kVA 27.40 · 18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88.",
+              "fr": "Pré-rempli pour 6 kVA. Grille EDF en €/mois TTC : 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+              "de": "Vorbelegt für 6 kVA. EDF-Tabelle in €/Monat brutto: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+              "es": "Prerrellenado para 6 kVA. Tabla EDF en €/mes con impuestos: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88."
+            },
+            "default": 15.86,
+            "required": true
+          }
+        ],
+        "tariff": {
+          "tariff_version": 1,
+          "calendars": ["holidays-fr"],
+          "components": [
+            {
+              "key": "energy",
+              "kind": "consumption",
+              "rules": [
+                {
+                  "label": "Jour férié",
+                  "when": {
+                    "calendar": {
+                      "holidays-fr": "holiday"
+                    }
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Week-end",
+                  "when": {
+                    "weekdays": ["sat", "sun"]
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Heures creuses",
+                  "when": {
+                    "time": "{{input:off_peak_slots}}"
+                  },
+                  "price": "{{input:off_peak_price}}"
+                }
+              ],
+              "fallback": {
+                "label": "Heures pleines",
+                "price": "{{input:peak_price}}"
+              }
+            },
+            {
+              "key": "subscription",
+              "kind": "fixed",
+              "amount": "{{input:subscription}}",
+              "per": "month"
+            }
+          ]
+        }
+      },
+      {
+        "key": "edf-zen-weekend-plus",
+        "name": {
+          "en": "EDF Zen Week-End Plus (weekend + chosen day)",
+          "fr": "EDF Zen Week-End Plus (option WE + jour choisi)",
+          "de": "EDF Zen Week-End Plus (Wochenende + gewählter Tag)",
+          "es": "EDF Zen Week-End Plus (fin de semana + día elegido)"
+        },
+        "description": {
+          "en": "Reduced price all weekend, on national public holidays and on the weekday you chose (Monday, Wednesday or Friday).",
+          "fr": "Prix réduit tout le week-end, les jours fériés nationaux et le jour de semaine choisi (lundi, mercredi ou vendredi).",
+          "de": "Günstigerer Preis am ganzen Wochenende, an landesweiten Feiertagen und an deinem gewählten Wochentag (Montag, Mittwoch oder Freitag).",
+          "es": "Precio reducido todo el fin de semana, los festivos nacionales y el día laborable elegido (lunes, miércoles o viernes)."
+        },
+        "country": "FR",
+        "currency": "EUR",
+        "timezone": "Europe/Paris",
+        "pricing_mode": "rules",
+        "version": "2026-09-15",
+        "calendars": ["holidays-fr"],
+        "inputs": [
+          {
+            "key": "chosen_day",
+            "type": "select",
+            "label": {
+              "en": "Chosen day (mon, wed or fri)",
+              "fr": "Jour choisi (mon = lundi, wed = mercredi, fri = vendredi)",
+              "de": "Gewählter Tag (mon = Montag, wed = Mittwoch, fri = Freitag)",
+              "es": "Día elegido (mon = lunes, wed = miércoles, fri = viernes)"
+            },
+            "description": {
+              "en": "The weekday of your contract priced like the weekend, from midnight to midnight.",
+              "fr": "Le jour de semaine de votre contrat facturé comme le week-end, de minuit à minuit.",
+              "de": "Der Wochentag deines Vertrags, der wie das Wochenende abgerechnet wird, von Mitternacht bis Mitternacht.",
+              "es": "El día laborable de su contrato facturado como el fin de semana, de medianoche a medianoche."
+            },
+            "options": ["mon", "wed", "fri"],
+            "default": "mon",
+            "required": true
+          },
+          {
+            "key": "peak_price",
+            "type": "number",
+            "unit": "EUR/kWh",
+            "label": {
+              "en": "Weekday price",
+              "fr": "Prix en semaine",
+              "de": "Preis werktags",
+              "es": "Precio entre semana"
+            },
+            "description": {
+              "en": "EDF price including taxes from 2026-09-15. Correct it if your bill shows another one.",
+              "fr": "Prix EDF TTC au 2026-09-15. Corrigez-le si votre facture en indique un autre.",
+              "de": "EDF-Bruttopreis ab 2026-09-15. Korrigiere ihn, wenn deine Rechnung einen anderen zeigt.",
+              "es": "Precio EDF con impuestos desde el 2026-09-15. Corríjalo si su factura indica otro."
+            },
+            "default": 0.2259,
+            "required": true
+          },
+          {
+            "key": "off_peak_price",
+            "type": "number",
+            "unit": "EUR/kWh",
+            "label": {
+              "en": "Weekend and holiday price",
+              "fr": "Prix week-end et jours fériés",
+              "de": "Preis Wochenende und Feiertage",
+              "es": "Precio fin de semana y festivos"
+            },
+            "description": {
+              "en": "EDF price including taxes from 2026-09-15, the same in every reduced period of the option.",
+              "fr": "Prix EDF TTC au 2026-09-15, le même pour toutes les périodes réduites de l'option.",
+              "de": "EDF-Bruttopreis ab 2026-09-15, gleich in allen günstigeren Zeiten der Option.",
+              "es": "Precio EDF con impuestos desde el 2026-09-15, el mismo en todos los periodos reducidos de la opción."
+            },
+            "default": 0.1691,
+            "required": true
+          },
+          {
+            "key": "subscription",
+            "type": "number",
+            "unit": "EUR/month",
+            "label": {
+              "en": "Monthly subscription (by subscribed power)",
+              "fr": "Abonnement mensuel (selon la puissance)",
+              "de": "Monatliche Grundgebühr (nach Anschlussleistung)",
+              "es": "Abono mensual (según la potencia contratada)"
+            },
+            "description": {
+              "en": "Pre-filled for 6 kVA. EDF grid in EUR/month including taxes: 6 kVA 15.86 · 9 kVA 19.88 · 12 kVA 23.76 · 15 kVA 27.40 · 18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88.",
+              "fr": "Pré-rempli pour 6 kVA. Grille EDF en €/mois TTC : 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+              "de": "Vorbelegt für 6 kVA. EDF-Tabelle in €/Monat brutto: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+              "es": "Prerrellenado para 6 kVA. Tabla EDF en €/mes con impuestos: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88."
+            },
+            "default": 15.86,
+            "required": true
+          }
+        ],
+        "tariff": {
+          "tariff_version": 1,
+          "calendars": ["holidays-fr"],
+          "components": [
+            {
+              "key": "energy",
+              "kind": "consumption",
+              "rules": [
+                {
+                  "label": "Jour férié",
+                  "when": {
+                    "calendar": {
+                      "holidays-fr": "holiday"
+                    }
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Week-end",
+                  "when": {
+                    "weekdays": ["sat", "sun"]
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Jour choisi",
+                  "when": {
+                    "weekdays": ["{{input:chosen_day}}"]
+                  },
+                  "price": "{{input:off_peak_price}}"
+                }
+              ],
+              "fallback": {
+                "label": "Semaine",
+                "price": "{{input:peak_price}}"
+              }
+            },
+            {
+              "key": "subscription",
+              "kind": "fixed",
+              "amount": "{{input:subscription}}",
+              "per": "month"
+            }
+          ]
+        }
+      },
+      {
+        "key": "edf-zen-weekend-plus-off-peak",
+        "name": {
+          "en": "EDF Zen Week-End Plus (off-peak + weekend + day)",
+          "fr": "EDF Zen Week-End Plus (option HC + WE + jour choisi)",
+          "de": "EDF Zen Week-End Plus (Nebenzeiten + WE + Tag)",
+          "es": "EDF Zen Week-End Plus (horas valle + FDS + día)"
+        },
+        "description": {
+          "en": "Off-peak price all weekend, on national public holidays, on the weekday you chose and during your Enedis off-peak hours.",
+          "fr": "Prix heures creuses tout le week-end, les jours fériés nationaux, le jour choisi et pendant vos heures creuses Enedis.",
+          "de": "Nebenzeitpreis am ganzen Wochenende, an landesweiten Feiertagen, an deinem gewählten Tag und während deiner Enedis-Nebenzeiten.",
+          "es": "Precio de horas valle todo el fin de semana, los festivos nacionales, el día elegido y durante sus horas valle Enedis."
+        },
+        "country": "FR",
+        "currency": "EUR",
+        "timezone": "Europe/Paris",
+        "pricing_mode": "rules",
+        "version": "2026-09-15",
+        "calendars": ["holidays-fr"],
+        "inputs": [
+          {
+            "key": "chosen_day",
+            "type": "select",
+            "label": {
+              "en": "Chosen day (mon, wed or fri)",
+              "fr": "Jour choisi (mon = lundi, wed = mercredi, fri = vendredi)",
+              "de": "Gewählter Tag (mon = Montag, wed = Mittwoch, fri = Freitag)",
+              "es": "Día elegido (mon = lunes, wed = miércoles, fri = viernes)"
+            },
+            "description": {
+              "en": "The weekday of your contract priced like the weekend, from midnight to midnight.",
+              "fr": "Le jour de semaine de votre contrat facturé comme le week-end, de minuit à minuit.",
+              "de": "Der Wochentag deines Vertrags, der wie das Wochenende abgerechnet wird, von Mitternacht bis Mitternacht.",
+              "es": "El día laborable de su contrato facturado como el fin de semana, de medianoche a medianoche."
+            },
+            "options": ["mon", "wed", "fri"],
+            "default": "mon",
+            "required": true
+          },
+          {
+            "key": "off_peak_slots",
+            "type": "time_intervals",
+            "label": {
+              "en": "Enedis off-peak hours (weekdays)",
+              "fr": "Heures creuses Enedis (en semaine)",
+              "de": "Enedis-Nebenzeiten (werktags)",
+              "es": "Horas valle Enedis (entre semana)"
+            },
+            "description": {
+              "en": "Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.",
+              "fr": "Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.",
+              "de": "Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.",
+              "es": "Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30."
+            },
+            "default": [
+              ["04:00", "08:00"],
+              ["12:30", "16:30"]
+            ],
+            "required": true
+          },
+          {
+            "key": "peak_price",
+            "type": "number",
+            "unit": "EUR/kWh",
+            "label": {
+              "en": "Peak hours price",
+              "fr": "Prix heures pleines",
+              "de": "Preis Hauptzeit",
+              "es": "Precio horas punta"
+            },
+            "description": {
+              "en": "EDF price including taxes from 2026-09-15. Correct it if your bill shows another one.",
+              "fr": "Prix EDF TTC au 2026-09-15. Corrigez-le si votre facture en indique un autre.",
+              "de": "EDF-Bruttopreis ab 2026-09-15. Korrigiere ihn, wenn deine Rechnung einen anderen zeigt.",
+              "es": "Precio EDF con impuestos desde el 2026-09-15. Corríjalo si su factura indica otro."
+            },
+            "default": 0.2314,
+            "required": true
+          },
+          {
+            "key": "off_peak_price",
+            "type": "number",
+            "unit": "EUR/kWh",
+            "label": {
+              "en": "Off-peak, weekend and holiday price",
+              "fr": "Prix heures creuses, week-end et fériés",
+              "de": "Preis Nebenzeit, Wochenende und Feiertage",
+              "es": "Precio horas valle, fin de semana y festivos"
+            },
+            "description": {
+              "en": "EDF price including taxes from 2026-09-15, the same in every reduced period of the option.",
+              "fr": "Prix EDF TTC au 2026-09-15, le même pour toutes les périodes réduites de l'option.",
+              "de": "EDF-Bruttopreis ab 2026-09-15, gleich in allen günstigeren Zeiten der Option.",
+              "es": "Precio EDF con impuestos desde el 2026-09-15, el mismo en todos los periodos reducidos de la opción."
+            },
+            "default": 0.1731,
+            "required": true
+          },
+          {
+            "key": "subscription",
+            "type": "number",
+            "unit": "EUR/month",
+            "label": {
+              "en": "Monthly subscription (by subscribed power)",
+              "fr": "Abonnement mensuel (selon la puissance)",
+              "de": "Monatliche Grundgebühr (nach Anschlussleistung)",
+              "es": "Abono mensual (según la potencia contratada)"
+            },
+            "description": {
+              "en": "Pre-filled for 6 kVA. EDF grid in EUR/month including taxes: 6 kVA 15.86 · 9 kVA 19.88 · 12 kVA 23.76 · 15 kVA 27.40 · 18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88.",
+              "fr": "Pré-rempli pour 6 kVA. Grille EDF en €/mois TTC : 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+              "de": "Vorbelegt für 6 kVA. EDF-Tabelle in €/Monat brutto: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+              "es": "Prerrellenado para 6 kVA. Tabla EDF en €/mes con impuestos: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88."
+            },
+            "default": 15.86,
+            "required": true
+          }
+        ],
+        "tariff": {
+          "tariff_version": 1,
+          "calendars": ["holidays-fr"],
+          "components": [
+            {
+              "key": "energy",
+              "kind": "consumption",
+              "rules": [
+                {
+                  "label": "Jour férié",
+                  "when": {
+                    "calendar": {
+                      "holidays-fr": "holiday"
+                    }
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Week-end",
+                  "when": {
+                    "weekdays": ["sat", "sun"]
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Jour choisi",
+                  "when": {
+                    "weekdays": ["{{input:chosen_day}}"]
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Heures creuses",
+                  "when": {
+                    "time": "{{input:off_peak_slots}}"
+                  },
+                  "price": "{{input:off_peak_price}}"
+                }
+              ],
+              "fallback": {
+                "label": "Heures pleines",
+                "price": "{{input:peak_price}}"
+              }
+            },
+            {
+              "key": "subscription",
+              "kind": "fixed",
+              "amount": "{{input:subscription}}",
+              "per": "month"
+            }
+          ]
+        }
+      }
+    ],
+    "calendars": [
+      {
+        "key": "holidays-fr",
+        "granularity": "day",
+        "timezone": "Europe/Paris",
+        "values": ["holiday"]
+      }
+    ]
+  }
 }

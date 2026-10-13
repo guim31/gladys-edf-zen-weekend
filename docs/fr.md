@@ -1,67 +1,175 @@
-# Template de démonstration
+# EDF Zen Week-End
 
-Ceci est la documentation utilisateur de l'intégration. Gladys ré-héberge ce
-fichier et affiche un lien **Documentation** permanent vers lui dans l'écran
-de configuration (dans la langue de l'utilisateur, avec l'anglais en repli) —
-c'est au moment de configurer que l'utilisateur en a le plus besoin. Gardez
-les courtes indications d'accueil dans les blocs `section` du `config_schema`
-du manifest ; mettez ici le pas-à-pas détaillé (captures d'écran, dépannage…).
+Gladys calcule le coût de votre électricité à partir de votre compteur et de votre contrat. Cette
+intégration ajoute les contrats **EDF Zen Week-End** et **Zen Week-End Plus** (offres de marché d'EDF) à
+l'assistant de contrat de Gladys, pour que chaque kilowattheure soit compté au bon prix :
 
-## Ce que vous obtenez
+- **tout le week-end** au prix réduit, du samedi 0 h au dimanche 24 h ;
+- les **jours fériés nationaux** au prix réduit, calculés hors ligne par l'intégration ;
+- vos **heures creuses Enedis** les autres jours, avec les options heures creuses (8 h par jour, celles de
+  votre facture) ;
+- le **jour choisi** (lundi, mercredi ou vendredi) de l'offre Plus ;
+- l'**abonnement mensuel** de votre puissance souscrite.
 
-Six appareils de démonstration apparaissent après l'installation : une
-station météo (vraies données Open-Meteo), un interrupteur, une lampe
-variable, une prise connectée avec mesure de puissance, un détecteur de
-mouvement et une caméra.
+Elle ajoute aussi des **déclencheurs de scène** à la minute où le prix réduit commence ou se termine (pour
+lancer le chauffe-eau ou la recharge de la voiture), une **action de scène** qui donne à vos scènes la
+période en cours, et un **widget « Heures creuses »** pour le tableau de bord.
 
-## Configuration
+> Testée par sa suite de tests automatiques et avec le moteur de tarifs de Gladys 5.2.0, pas encore sur une
+> vraie instance Gladys : vos retours sont les bienvenus sur le forum Gladys ou dans les issues GitHub.
 
-1. Ouvrez l'onglet **Configuration** de l'intégration.
-2. Renseignez la **latitude** et la **longitude** que la station météo de
-   démonstration doit observer (Paris par défaut), et choisissez votre unité
-   de température. L'**intervalle de rafraîchissement** règle la fréquence
-   de lecture de la station météo et de la puissance de la prise : toutes
-   les 5 minutes par défaut, toutes les minutes au plus.
-3. Enregistrez : les appareils apparaissent dans l'onglet **Découverte**,
-   prêts à être ajoutés.
+## Ce qu'il faut
 
-Le réglage **Préférer la connexion locale** pilote la prise de
-démonstration : elle affiche en badge le canal réellement utilisé (local ou
-cloud), avec un point orange quand elle fonctionne en mode dégradé (local
-refusé, bascule cloud).
+- Gladys Assistant **5.2.0** ou plus récent (contrats d'énergie).
+- Un compteur électrique dans Gladys dont la consommation est connue toutes les 30 minutes (intégration
+  Suivi de l'énergie : Linky via Enedis, index Lixee ou Tasmota…).
+- Un contrat EDF Zen Week-End ou Zen Week-End Plus. Ni compte, ni clé d'API, ni accès réseau : tout est
+  calculé sur votre Gladys.
 
-## Actions
+## Installation et réglages
 
-- **Tester le fournisseur météo** — effectue une requête en direct vers
-  Open-Meteo et affiche la température et l'humidité actuelles sous le
-  bouton.
-- **Identifier un appareil** — choisissez un de vos appareils dans la liste
-  et il se signale (la lampe de démonstration « clignote » dans les logs).
+Installez l'intégration (**Intégrations → Installer depuis GitHub**, adresse
+`https://github.com/guim31/gladys-edf-zen-weekend`). Sa page de configuration n'a rien à remplir, sauf la
+langue des textes des scènes.
 
-## Scènes
+### Créer le contrat
 
-L'intégration ajoute ses propres cartes à l'éditeur de scènes (Gladys 5.1
-ou plus récent), dans la catégorie **Intégrations** :
+1. Ouvrez **Intégrations → Suivi de l'énergie → Contrats** et créez un contrat.
+2. Choisissez l'un des quatre modèles **EDF Zen Week-End** (voir ci-dessous), puis votre compteur
+   électrique et la date de début de votre contrat.
+3. Vérifiez les valeurs pré-remplies avec votre facture : heures creuses, prix, abonnement. Enregistrez.
 
-- **Mouvement détecté** (déclencheur) — lance la scène quand un détecteur
-  de démonstration voit bouger quelque chose. Choisissez éventuellement le
-  détecteur et ce qui a bougé (personne, animal) ; laissés vides, toute
-  détection correspond. Les actions suivantes peuvent lire ce qui a bougé
-  avec `{{triggerEvent.data.target}}`.
-- **Identifier un appareil** (action) — fait se signaler l'appareil choisi.
-  Elle indique si l'appareil a pu se signaler, pour que les actions
-  suivantes puissent en dépendre.
+Gladys compte alors chaque demi-heure de consommation avec ce contrat, depuis sa date de début, passé
+compris.
 
-## Tableau de bord
+### Quel modèle ?
 
-Ajoutez le widget **État de la démo** à un tableau de bord : il affiche en
-direct la température de la station météo et la puissance de la prise du
-bureau, la connexion utilisée par la prise (en orange si dégradée) et la
-position observée. Son bouton **Identifier la lampe** fait se signaler la
-lampe de démonstration.
+| Modèle                                               | Prix réduit                                                |
+| ---------------------------------------------------- | ---------------------------------------------------------- |
+| EDF Zen Week-End (option Week-End)                   | week-end et jours fériés                                   |
+| EDF Zen Week-End (option Heures Creuses + WE)        | week-end, jours fériés, heures creuses Enedis              |
+| EDF Zen Week-End Plus (option WE + jour choisi)      | week-end, jours fériés, jour choisi                        |
+| EDF Zen Week-End Plus (option HC + WE + jour choisi) | week-end, jours fériés, jour choisi, heures creuses Enedis |
+
+L'option **Flex** de Zen Week-End n'est pas proposée : ses « jours sobriété » sont annoncés par EDF au jour
+le jour, et aucun calendrier de Gladys ne les fournit encore.
+
+### Prix et abonnement
+
+Les modèles sont pré-remplis avec les grilles de prix officielles d'EDF **applicables à compter du
+15 septembre 2026** (prix TTC, pour les nouvelles souscriptions) :
+
+| Option                              | Plein tarif (€/kWh) | Prix réduit (€/kWh) |
+| ----------------------------------- | ------------------- | ------------------- |
+| Zen Week-End, Week-End              | 0,2285              | 0,1710              |
+| Zen Week-End, Heures Creuses + WE   | 0,2359              | 0,1762              |
+| Zen Week-End Plus, WE + jour choisi | 0,2259              | 0,1691              |
+| Zen Week-End Plus, HC + WE + jour   | 0,2314              | 0,1731              |
+
+L'abonnement mensuel dépend de votre puissance souscrite, le même pour toutes les options (€/mois TTC) :
+3 kVA 12,13 (option Week-End seulement) · 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 ·
+18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88. Le modèle est pré-rempli pour 6 kVA : saisissez
+le vôtre.
+
+Les **heures creuses** sont fixées par Enedis pour chaque logement : elles figurent sur votre facture et
+sur enedis.fr. Le modèle est pré-rempli avec 4 h-8 h et 12 h 30-16 h 30 ; la plupart des logements ont des
+heures de nuit (par exemple 22 h-6 h) : sélectionnez les vôtres dans la grille.
+
+### Langue
+
+Le champ **Langue des textes des scènes** (français par défaut) règle la langue des noms de période et des
+heures envoyés aux scènes. Le widget suit la langue de chaque utilisateur. Les noms de période affichés par
+le widget « Prix de l'électricité » de Gladys viennent du contrat et restent en français (« Heures creuses »,
+« Week-end », « Jour férié »…), les mots de la facture.
+
+## Ce que Gladys calcule
+
+Le contrat est calculé par Gladys elle-même, avec les règles du modèle :
+
+1. un **jour férié** (fériés nationaux seulement : le Vendredi saint et le 26 décembre, fériés de
+   l'Alsace-Moselle seulement, ne sont pas réduits par EDF) est réduit de 0 h à 24 h ;
+2. le **week-end** est réduit du samedi 0 h au dimanche 24 h ;
+3. le **jour choisi** de l'offre Plus est réduit de 0 h à 24 h ;
+4. les **heures creuses** sont réduites les autres jours ;
+5. le reste du temps est au plein tarif.
+
+L'intégration publie les jours fériés dans le calendrier `holidays-fr` de Gladys, environ une semaine à
+l'avance (Gladys refuse les dates plus lointaines), et jusqu'au début de votre contrat. Si l'intégration est
+arrêtée, un jour férié qu'elle n'a pas pu publier à temps est compté comme un jour de semaine ; une fois
+publié, Gladys recalcule les coûts. D'autres modèles peuvent lire le même calendrier `holidays-fr`.
+
+## Widget du tableau de bord
+
+**Heures creuses** affiche la période en cours (heures creuses, heures pleines, week-end, jour férié, jour
+choisi), le prix actuel, le temps restant avant le prochain changement, ce changement, les heures creuses
+d'aujourd'hui et de demain, et le prochain jour férié. Il décrit votre dernier contrat EDF Zen Week-End
+actif.
+
+Il complète le widget **Prix de l'électricité** de Gladys, qui affiche le prix actuel et le suivant sur les
+48 heures à venir.
+
+## Déclencheurs de scène
+
+- **Début des heures creuses** : le prix réduit commence, à la minute près. Filtre : la période qui
+  commence (heures creuses, week-end, jour férié, jour choisi ; vide pour toutes). Variables : période (clé
+  et nom), prix, minutes avant le prochain changement, heure du prochain changement.
+- **Fin des heures creuses** : le plein tarif revient. Variables : prix, minutes avant le retour du prix
+  réduit, son heure, la prochaine période réduite (clé et nom).
+
+Le passage d'une période réduite à une autre (du dimanche soir aux heures creuses de nuit du lundi) ne
+déclenche rien : le prix reste réduit. Le déclencheur **Changement de prix de l'électricité** du cœur de Gladys existe
+aussi ; il tourne toutes les 30 minutes et se déclenche à chaque changement de prix ou de nom, celui-là
+compris.
+
+## Action de scène « Lire la période tarifaire EDF »
+
+Donne aux actions suivantes de la scène : `off_peak` (vrai ou faux), la période (clé et nom), le prix
+actuel, les minutes avant le prochain changement et son heure. Elle échoue si aucun contrat actif n'utilise
+un modèle de l'intégration.
+
+## Exemples de scènes
+
+- **Chauffe-eau** : déclencheur « Début des heures creuses » (période : heures creuses) → allumer la prise
+  du chauffe-eau ; déclencheur « Fin des heures creuses » → l'éteindre.
+- **Recharge de la voiture au prix réduit seulement** : déclencheur « la voiture est branchée » → action
+  « Lire la période tarifaire EDF » → continuer seulement si `off_peak` est vrai → lancer la recharge.
+- **Lave-linge** : action « Lire la période tarifaire EDF », continuer seulement s'il reste 120 minutes ou
+  plus avant le changement, puis lancer la machine.
+- **Notification** : déclencheur « Fin des heures creuses » → envoyer « Plein tarif jusqu'à
+  {{triggerEvent.data.next_change}} ».
+
+## Quand EDF change ses prix
+
+EDF révise les prix de ses offres de marché jusqu'à deux fois par an. Une nouvelle grille devient une
+nouvelle version de l'intégration, avec des modèles datés par la grille. Gladys ne modifie jamais un contrat
+d'elle-même : corrigez les prix de votre contrat, ou créez un nouveau contrat depuis le modèle à jour à la
+date du changement. Votre facture fait toujours foi face aux valeurs pré-remplies.
 
 ## Dépannage
 
-L'intégration journalise tout ce qu'elle fait : consultez les logs de
-l'intégration depuis l'interface Gladys (ou `docker logs` sur l'hôte) avec
-`LOG_LEVEL=debug` pour le détail complet.
+- **Aucun modèle dans l'assistant** : il faut Gladys 5.2.0 ou plus récent, et l'intégration installée.
+- **Un jour férié au plein tarif** : vérifiez que l'intégration tournait la semaine d'avant ; dans ses
+  journaux, « Published … public holiday(s) » liste les publications.
+- **« Calendrier des fériés : fourni par une autre intégration »** dans le widget : une autre intégration
+  fournit déjà `holidays-fr` ; les modèles le lisent. Les déclencheurs et le widget suivent toujours les fériés nationaux calculés par cette intégration : si l'autre calendrier a d'autres jours, ils peuvent différer du prix.
+- **Heures creuses fausses** : modifiez le contrat dans Suivi de l'énergie → Contrats. L'intégration relit les
+  contrats dans les 10 minutes.
+- **Pas d'événement de scène** : l'intégration n'en envoie pas quand elle remarque un changement avec plus
+  de 15 minutes de retard (Gladys injoignable, machine en veille).
+
+## Limites
+
+- Les prix sont ceux d'EDF au 15 septembre 2026 pour les nouvelles souscriptions ; un contrat plus ancien
+  peut en avoir d'autres.
+- La majoration des auto-producteurs (9,84 € HT par an) n'est pas comptée.
+- L'option Flex n'est pas prise en charge.
+- Les heures creuses suivent la grille de 30 minutes de l'assistant de Gladys.
+- Changer de jour choisi (deux fois par année contractuelle) revient à créer un nouveau contrat à la date du
+  changement.
+- Sans lien avec EDF ni Enedis. « EDF » et « Zen Week-End » sont des marques de leurs propriétaires.
+
+## Crédits
+
+- Prix : grilles de prix EDF « Zen Week-End » et « Zen Week-End Plus », applicables à compter du
+  15 septembre 2026 (particulier.edf.fr).
+- Moteur de tarifs et assistant de contrat : Gladys Assistant 5.2.0 (Apache 2.0).

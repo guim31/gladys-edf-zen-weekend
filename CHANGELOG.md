@@ -12,44 +12,22 @@ the notes of the version's GitHub Release.
 
 ### Added
 
-- A working example of scene triggers, scene actions and dashboard widgets
-  (Gladys 5.1.0 or later).
-- `CHANGELOG.md`, rolled by the Release workflow.
-- A GitHub Release for every version, with its changelog section as notes: the
-  Gladys Supervision page links each version to the repository's releases.
-- CI runs the tests on Node 22 and 24, and builds the Docker image.
-- Dependabot keeps the npm dependencies and the GitHub Actions up to date.
-- `SECURITY.md` (how to report a vulnerability) and `CLAUDE.md` (project rules
-  for contributors and coding assistants).
-- Manifest tests: `version` matches `package.json`, `docker_image` is tagged
-  with it, descriptions hold 10 to 100 characters, placeholders are
-  multi-language objects.
-- The latitude and longitude fields show an example value as placeholder.
+- Four EDF contract templates in the energy contract wizard of Gladys (Gladys
+  5.2.0 or later): Zen Week-End (Week-End option, and Off-peak hours + weekend
+  option) and Zen Week-End Plus (weekend + chosen day, with or without the
+  off-peak hours), pre-filled with the EDF price grid applicable from
+  15 September 2026 and priced by Gladys itself.
+- The French national public holidays, priced like the weekend, computed
+  offline and published to the `holidays-fr` tariff calendar of Gladys about a
+  week ahead.
+- Your Enedis off-peak hours and the chosen day of the Plus offer, set in the
+  contract (off-peak hours pre-filled with 04:00-08:00 and 12:30-16:30).
+- Scene triggers "Off-peak hours start" and "Off-peak hours end", at the exact
+  minute, with the period, the price and the time of the next change.
+- Scene action "Read the EDF tariff period": reduced price or not, period,
+  price, minutes until the next change.
+- Dashboard widget "Off-peak hours": the period in force and until when, today's
+  and tomorrow's off-peak hours, the next public holiday.
+- Documentation in English, French, German and Spanish.
 
-### Changed
-
-- Node.js 22 or later is required (Node 20 is end-of-life).
-- Integration SDK 0.15.0. The tests now run against the fake Gladys of the
-  SDK, which refuses the payloads Gladys refuses.
-- The refresh interval is one minute minimum, the fastest Gladys polls a
-  device. The plug's power is only sent when it changes, and every 30
-  minutes otherwise.
-
-### Fixed
-
-- Gladys refused the devices of the Discovery tab: the weather station and
-  the plug declared their poll frequency in seconds instead of one of the
-  values Gladys accepts, and were never polled. They now poll every minute,
-  and the readings follow the refresh interval of the configuration.
-
-- The release commit no longer fails `npm run format:check`: the Release
-  workflow updates the manifest `version` and `docker_image` in place instead
-  of re-printing the whole file with `jq`.
-- The integration can write to `/data`: the image creates the directory owned
-  by the `node` user, a new Docker volume was owned by root.
-- A sub-container running the integration's own image follows it to the new
-  tag at each release, as well as in the manifest of the build summary: it kept
-  the previous tag, which may not exist on the registry. Sub-containers on a
-  third-party image (a broker, a database...) keep theirs.
-
-[Unreleased]: https://github.com/GladysAssistant/integration-template-js/commits/main
+[Unreleased]: https://github.com/guim31/gladys-edf-zen-weekend/commits/main
