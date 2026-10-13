@@ -78,9 +78,7 @@ npx -y github:GladysAssistant/integration-store --skip-image-check .
 - [date-holidays](https://github.com/commenthol/date-holidays) (ISC, data CC-BY-3.0), used by the tests to check the
   holiday computation.
 - Prices: EDF price grids "Zen Week-End" and "Zen Week-End Plus" (particulier.edf.fr).
-- Cover: EDF logo from
-  [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:%C3%89lectricit%C3%A9_de_France_logo.svg)
-  (public domain).
+- Cover: drawn for this integration, no EDF logo (the integration is not an EDF product).
 
 Not affiliated with EDF nor Enedis. "EDF" and "Zen Week-End" are trademarks of their respective owners.
 
