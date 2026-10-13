@@ -133,7 +133,7 @@ the integration.
   period" → continue only if `off_peak` is true → start the charge.
 - **Washing machine**: action "Read the EDF tariff period", continue only if the minutes until the change
   are 120 or more, then start the machine.
-- **Notification**: trigger "Off-peak hours end" → send "Full price until {{next_change}}".
+- **Notification**: trigger "Off-peak hours end" → send "Full price until {{triggerEvent.data.next_change}}".
 
 ## When EDF changes its prices
 
@@ -148,7 +148,7 @@ Always trust your bill over the pre-filled values.
 - **A holiday priced at the full price**: check that the integration was running the week before; in its
   logs, "Published … public holiday(s)" lists the publications.
 - **"Holiday calendar: fed by another integration"** in the widget: another integration already provides
-  `holidays-fr`; the templates read it.
+  `holidays-fr`; the templates read it. The scene triggers and the widget still follow the national holidays computed by this integration: if the other calendar has different days, they may disagree with the price.
 - **Wrong off-peak hours**: edit the contract in Energy Monitoring → Contracts. The integration reads the
   contracts again within 10 minutes.
 - **No scene event**: the integration fires none when it notices a change more than 15 minutes late (Gladys

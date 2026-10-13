@@ -7,7 +7,7 @@
 // test/schedule.test.js compares both, half-hour by half-hour, over years.
 // -----------------------------------------------------------------------------
 
-import { findOption, TIMEZONE, CHOSEN_DAYS } from './templates.js';
+import { findOption, HOLIDAY_CALENDAR, TIMEZONE, CHOSEN_DAYS } from './templates.js';
 import { holidayOn } from './holidays.js';
 import { addDays, localParts, localToUtc, parseTime, weekdayOf } from './time.js';
 
@@ -76,8 +76,8 @@ export function buildSchedule(contract) {
 }
 
 /** The period of a local day as a whole, or null when the hours decide. */
-export function dayPeriod(schedule, date) {
-  if (holidayOn(date)) {
+export function dayPeriod(schedule, date, { holidays = true } = {}) {
+  if (holidays && holidayOn(date)) {
     return 'holiday';
   }
   const weekday = weekdayOf(date);
@@ -91,8 +91,13 @@ export function dayPeriod(schedule, date) {
 }
 
 export function periodAt(schedule, ms) {
+  // The core reads the holiday calendar by the local date of its own time
+  // zone (Europe/Paris), the weekdays and hours in the contract time zone.
+  if (holidayOn(localParts(ms, HOLIDAY_CALENDAR.timezone).date)) {
+    return 'holiday';
+  }
   const local = localParts(ms, schedule.timeZone);
-  const whole = dayPeriod(schedule, local.date);
+  const whole = dayPeriod(schedule, local.date, { holidays: false });
   if (whole) {
     return whole;
   }

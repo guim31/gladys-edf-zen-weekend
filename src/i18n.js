@@ -149,6 +149,7 @@ export const WIDGET_TEXT = {
     neverChanges: 'No change ahead',
     refused: 'Fed by another integration',
     failed: 'Not sent: see the logs',
+    scheduled: (date) => `Your EDF Zen Week-End contract starts on ${date}`,
     noContract:
       'No EDF Zen Week-End contract yet. In Gladys, open Integrations → Energy Monitoring → Contracts, and create a contract from an EDF Zen Week-End template.',
   },
@@ -167,6 +168,7 @@ export const WIDGET_TEXT = {
     neverChanges: 'Aucun changement prévu',
     refused: 'Fourni par une autre intégration',
     failed: 'Non transmis : voir les journaux',
+    scheduled: (date) => `Votre contrat EDF Zen Week-End commence le ${date}`,
     noContract:
       "Pas encore de contrat EDF Zen Week-End. Dans Gladys, ouvrez Intégrations → Suivi de l'énergie → Contrats, et créez un contrat à partir d'un modèle EDF Zen Week-End.",
   },
@@ -185,6 +187,7 @@ export const WIDGET_TEXT = {
     neverChanges: 'Kein Wechsel in Sicht',
     refused: 'Von einer anderen Integration',
     failed: 'Nicht gesendet: siehe Logs',
+    scheduled: (date) => `Dein EDF-Zen-Week-End-Vertrag beginnt am ${date}`,
     noContract:
       'Noch kein EDF-Zen-Week-End-Vertrag. Öffne in Gladys Integrationen → Energieüberwachung → Verträge und lege einen Vertrag aus einer EDF-Zen-Week-End-Vorlage an.',
   },
@@ -203,6 +206,7 @@ export const WIDGET_TEXT = {
     neverChanges: 'Ningún cambio previsto',
     refused: 'Lo provee otra integración',
     failed: 'No enviado: vea los registros',
+    scheduled: (date) => `Su contrato EDF Zen Week-End empieza el ${date}`,
     noContract:
       'Todavía no hay contrato EDF Zen Week-End. En Gladys, abra Integraciones → Supervisión de energía → Contratos y cree un contrato a partir de una plantilla EDF Zen Week-End.',
   },

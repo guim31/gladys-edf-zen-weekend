@@ -179,7 +179,7 @@ test('the period names, holiday names and widget texts exist in every language',
     tableProblems(ACTION_TEXT, 'ACTION_TEXT', () => MAX.message),
     [],
   );
-  const widgetMax = (key) => (key === 'noContract' ? MAX.body : MAX.status);
+  const widgetMax = (key) => (['noContract', 'scheduled'].includes(key) ? MAX.body : MAX.status);
   const render = (value) => (typeof value === 'function' ? value('Heures creuses') : value);
   assert.deepEqual(tableProblems(WIDGET_TEXT, 'WIDGET_TEXT', widgetMax, render), []);
 });

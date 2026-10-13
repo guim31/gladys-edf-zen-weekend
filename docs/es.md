@@ -135,7 +135,7 @@ plantilla de la integración.
   tarifario EDF» → continuar solo si `off_peak` es verdadero → iniciar la carga.
 - **Lavadora**: acción «Leer el periodo tarifario EDF», continuar solo si quedan 120 minutos o más hasta el
   cambio, luego iniciar la máquina.
-- **Notificación**: disparador «Fin de las horas valle» → enviar «Precio completo hasta {{next_change}}».
+- **Notificación**: disparador «Fin de las horas valle» → enviar «Precio completo hasta {{triggerEvent.data.next_change}}».
 
 ## Cuando EDF cambia sus precios
 
@@ -150,7 +150,7 @@ partir de la fecha del cambio. Su factura prevalece siempre sobre los valores pr
 - **Un festivo a precio completo**: compruebe que la integración funcionaba la semana anterior; en sus
   registros, «Published … public holiday(s)» lista las publicaciones.
 - **«Calendario de festivos: lo provee otra integración»** en el widget: otra integración ya proporciona
-  `holidays-fr`; las plantillas lo leen.
+  `holidays-fr`; las plantillas lo leen. Los disparadores y el widget siguen los festivos nacionales calculados por esta integración: si el otro calendario tiene otros días, pueden no coincidir con el precio.
 - **Horas valle incorrectas**: modifique el contrato en Supervisión de energía → Contratos. La integración
   vuelve a leer los contratos en 10 minutos.
 - **Ningún evento de escena**: la integración no envía ninguno cuando detecta un cambio con más de 15

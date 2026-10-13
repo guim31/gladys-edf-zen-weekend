@@ -6,7 +6,7 @@
 // Each holiday is published once: the dates already sent are kept in /data.
 // The core purges the calendar entries older than the oldest consumption it
 // stores, and a purged holiday published again would be "changed" and trigger
-// a cost recalculation at every sync. The near holidays (± 7 days, what the
+// a cost recalculation at every sync. The near holidays (yesterday to a week ahead, what the
 // current prices read) are checked against the calendar read back from Gladys,
 // so a restored database gets them again.
 // -----------------------------------------------------------------------------
@@ -69,8 +69,11 @@ export class HolidayCalendar {
       for (const date of await this.nearDatesInGladys(today)) {
         this.published.add(date);
       }
+      // From yesterday only: the core purges what is older than the oldest
+      // consumption it stores, and on a young instance a holiday of last
+      // week republished at every sync would trigger a recalculation each time.
       for (const date of wanted) {
-        if (date >= addDays(today, -NEAR_DAYS) && !this.nearDates.has(date)) {
+        if (date >= addDays(today, -1) && !this.nearDates.has(date)) {
           missing.add(date);
         }
       }

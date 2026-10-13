@@ -134,7 +134,7 @@ aktiver Vertrag eine Vorlage der Integration nutzt.
   „EDF-Tarifzeitraum lesen“ → nur fortfahren, wenn `off_peak` wahr ist → Laden starten.
 - **Waschmaschine**: Aktion „EDF-Tarifzeitraum lesen“, nur fortfahren, wenn noch 120 Minuten oder mehr bis
   zum Wechsel bleiben, dann die Maschine starten.
-- **Benachrichtigung**: Auslöser „Ende der Nebenzeit“ → „Voller Preis bis {{next_change}}“ senden.
+- **Benachrichtigung**: Auslöser „Ende der Nebenzeit“ → „Voller Preis bis {{triggerEvent.data.next_change}}“ senden.
 
 ## Wenn EDF die Preise ändert
 
@@ -150,7 +150,7 @@ aktualisierten Vorlage an. Deine Rechnung gilt immer vor den vorbelegten Werten.
 - **Ein Feiertag zum vollen Preis**: Prüfe, ob die Integration in der Woche davor lief; in ihren Logs listet
   „Published … public holiday(s)“ die Veröffentlichungen.
 - **„Feiertagskalender: von einer anderen Integration“** im Widget: Eine andere Integration liefert
-  `holidays-fr` bereits; die Vorlagen lesen ihn.
+  `holidays-fr` bereits; die Vorlagen lesen ihn. Die Szenenauslöser und das Widget folgen weiter den landesweiten Feiertagen dieser Integration: Hat der andere Kalender andere Tage, können sie vom Preis abweichen.
 - **Falsche Nebenzeiten**: Ändere den Vertrag unter Energieüberwachung → Verträge. Die Integration liest
   die Verträge innerhalb von 10 Minuten neu.
 - **Kein Szenenereignis**: Die Integration sendet keines, wenn sie einen Wechsel mit mehr als 15 Minuten

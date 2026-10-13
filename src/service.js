@@ -30,6 +30,8 @@ export const TRIGGERS = {
 };
 export const WIDGET_KEY = 'off_peak_hours';
 
+const EVENTS_FILE = 'events.json';
+
 export const SYNC_INTERVAL_MS = 10 * MINUTE_MS;
 // A change noticed later than this (the host was asleep, Gladys unreachable)
 // fires no event: a water heater started an hour late is worse than none.
@@ -47,11 +49,15 @@ export class TariffService {
     this.gladys = gladys;
     this.now = now;
     this.timers = timers;
+    this.store = store;
     this.calendar = new HolidayCalendar({ gladys, store });
+    // signature → instant of the last flip fired
+    const fired = store.load(EVENTS_FILE);
+    this.fired = fired && typeof fired === 'object' ? fired : {};
     this.config = null;
     this.contracts = [];
     this.schedules = [];
-    // signature → { period, next } seen at the last tick
+    // signature → { at, period, next } seen at the last tick
     this.states = new Map();
     this.syncTimer = null;
     this.tickTimer = null;
@@ -143,19 +149,28 @@ export class TariffService {
       const period = periodAt(schedule, now);
       const next = nextChange(schedule, now);
       const previous = this.states.get(schedule.signature);
-      this.states.set(schedule.signature, { period, next });
-      if (!previous || isOffPeak(previous.period) === isOffPeak(period)) {
+      this.states.set(schedule.signature, { at: now, period, next });
+      // The last flip since the previous tick; after a (re)start, within the
+      // late window: a boundary that fell while the container restarted still
+      // fires, at most once (the fired flips are kept in /data).
+      const flip = lastFlip(schedule, previous ? previous.at : now - LATE_EVENT_MS, now);
+      if (!flip) {
         continue;
       }
       changed = true;
-      const late = previous.next ? now - previous.next.at : 0;
+      const late = now - flip.at;
       if (late > LATE_EVENT_MS) {
         logger.info(
           `Off-peak change noticed ${Math.round(late / MINUTE_MS)} min late: no scene event`,
         );
         continue;
       }
+      if ((this.fired[schedule.signature] ?? 0) >= flip.at) {
+        continue;
+      }
       await this.fire(schedule, period, next, now);
+      this.fired = { ...this.fired, [schedule.signature]: flip.at };
+      this.store.save(EVENTS_FILE, this.fired);
     }
     // A schedule that left (contract closed) is forgotten.
     for (const signature of this.states.keys()) {
@@ -252,6 +267,16 @@ export class TariffService {
     this.syncTimer = null;
     this.tickTimer = null;
   }
+}
+
+/** The last off-peak flip in (from, to], or null. */
+export function lastFlip(schedule, from, to) {
+  let last = null;
+  for (let flip = nextChange(schedule, from); flip && flip.at <= to;) {
+    last = flip;
+    flip = nextChange(schedule, flip.at);
+  }
+  return last;
 }
 
 /** The schedules of the active contracts, the latest contract first. */

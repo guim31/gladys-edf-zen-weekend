@@ -59,10 +59,11 @@ function offsetMinutes(ms, timeZone) {
  */
 export function localToUtc(date, minutes, timeZone) {
   const naive = Date.parse(`${date}T00:00:00Z`) + minutes * MINUTE_MS;
-  // The offsets in force half a day before and after cover any change of the day.
+  // The offsets in force a day before and after cover any change of the day,
+  // offsets of 12 hours and more (Auckland, Chatham) included.
   const offsets = new Set([
-    offsetMinutes(naive - DAY_MS / 2, timeZone),
-    offsetMinutes(naive + DAY_MS / 2, timeZone),
+    offsetMinutes(naive - DAY_MS, timeZone),
+    offsetMinutes(naive + DAY_MS, timeZone),
   ]);
   const guesses = [...offsets].map((offset) => naive - offset * MINUTE_MS);
   const candidates = guesses.filter((ms) => {

@@ -236,4 +236,14 @@ test('local time arithmetic around the daylight saving changes', () => {
     weekday: 'sun',
   });
   assert.equal(localToUtc('2026-01-12', 0, 'America/New_York'), Date.parse('2026-01-12T05:00:00Z'));
+  // Offsets of 12 hours and more: Auckland, 5 April 2026 (03:00 → 02:00) and
+  // 27 September 2026 (02:00 → 03:00).
+  assert.equal(
+    localToUtc('2026-04-05', 150, 'Pacific/Auckland'),
+    Date.parse('2026-04-04T13:30:00Z'),
+  );
+  assert.equal(
+    localToUtc('2026-09-27', 150, 'Pacific/Auckland'),
+    Date.parse('2026-09-26T14:00:00Z'),
+  );
 });

@@ -238,7 +238,7 @@
           "description": {
             "en": "For example \"16:30\" or \"Mon 04:00\", in the language of the configuration.",
             "fr": "Par exemple « 16:30 » ou « lun. 04:00 », dans la langue de la configuration.",
-            "de": "Zum Beispiel „16:30“ oder „Mo. 04:00“, in der Sprache der Konfiguration.",
+            "de": "Zum Beispiel „16:30“ oder „Mo 04:00“, in der Sprache der Konfiguration.",
             "es": "Por ejemplo «16:30» o «lun 04:00», en el idioma de la configuración."
           }
         }
@@ -297,7 +297,7 @@
           "description": {
             "en": "For example \"16:30\" or \"Mon 04:00\", in the language of the configuration.",
             "fr": "Par exemple « 16:30 » ou « lun. 04:00 », dans la langue de la configuration.",
-            "de": "Zum Beispiel „16:30“ oder „Mo. 04:00“, in der Sprache der Konfiguration.",
+            "de": "Zum Beispiel „16:30“ oder „Mo 04:00“, in der Sprache der Konfiguration.",
             "es": "Por ejemplo «16:30» o «lun 04:00», en el idioma de la configuración."
           }
         },
@@ -415,7 +415,7 @@
           "description": {
             "en": "For example \"16:30\" or \"Mon 04:00\", in the language of the configuration.",
             "fr": "Par exemple « 16:30 » ou « lun. 04:00 », dans la langue de la configuration.",
-            "de": "Zum Beispiel „16:30“ oder „Mo. 04:00“, in der Sprache der Konfiguration.",
+            "de": "Zum Beispiel „16:30“ oder „Mo 04:00“, in der Sprache der Konfiguration.",
             "es": "Por ejemplo «16:30» o «lun 04:00», en el idioma de la configuración."
           }
         }

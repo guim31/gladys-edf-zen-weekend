@@ -136,7 +136,7 @@ un modèle de l'intégration.
 - **Lave-linge** : action « Lire la période tarifaire EDF », continuer seulement s'il reste 120 minutes ou
   plus avant le changement, puis lancer la machine.
 - **Notification** : déclencheur « Fin des heures creuses » → envoyer « Plein tarif jusqu'à
-  {{next_change}} ».
+  {{triggerEvent.data.next_change}} ».
 
 ## Quand EDF change ses prix
 
@@ -151,7 +151,7 @@ date du changement. Votre facture fait toujours foi face aux valeurs pré-rempli
 - **Un jour férié au plein tarif** : vérifiez que l'intégration tournait la semaine d'avant ; dans ses
   journaux, « Published … public holiday(s) » liste les publications.
 - **« Calendrier des fériés : fourni par une autre intégration »** dans le widget : une autre intégration
-  fournit déjà `holidays-fr` ; les modèles le lisent.
+  fournit déjà `holidays-fr` ; les modèles le lisent. Les déclencheurs et le widget suivent toujours les fériés nationaux calculés par cette intégration : si l'autre calendrier a d'autres jours, ils peuvent différer du prix.
 - **Heures creuses fausses** : modifiez le contrat dans Suivi de l'énergie → Contrats. L'intégration relit les
   contrats dans les 10 minutes.
 - **Pas d'événement de scène** : l'intégration n'en envoie pas quand elle remarque un changement avec plus

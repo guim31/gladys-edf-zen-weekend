@@ -22,7 +22,8 @@ import { offPeakOfDay } from './schedule.js';
 import { WIDGET_KEY } from './service.js';
 import { addDays, localParts } from './time.js';
 
-const MAX_TTL_SECONDS = 3600;
+// The "until the change" tile counts down: pulled again every 5 minutes.
+const MAX_TTL_SECONDS = 300;
 
 function dayText(schedule, date, language) {
   const text = WIDGET_TEXT[language];
@@ -43,9 +44,21 @@ export function buildContent(service, language) {
   const text = WIDGET_TEXT[language];
   const snapshot = service.snapshot(language);
   if (!snapshot) {
+    const scheduled = service.contracts
+      .filter(
+        (contract) => contract.status === 'scheduled' && typeof contract.valid_from === 'string',
+      )
+      .map((contract) => contract.valid_from)
+      .sort()[0];
     return {
       ttl_seconds: 600,
-      components: [{ type: 'text', variant: 'body', text: text.noContract }],
+      components: [
+        {
+          type: 'text',
+          variant: 'body',
+          text: scheduled ? text.scheduled(formatDate(scheduled, language)) : text.noContract,
+        },
+      ],
     };
   }
   const { schedule, now, period, offPeak, price, next, minutesLeft } = snapshot;

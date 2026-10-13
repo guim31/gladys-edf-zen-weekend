@@ -259,8 +259,8 @@ test('the widget, in the four languages, within the content budget', async () =>
       ['Prochain jour férié', 'dim. 1 nov. · Toussaint'],
     ],
   );
-  // Pulled again right after the change.
-  assert.equal(content.ttl_seconds, 3600);
+  // The countdown tile is pulled again every 5 minutes.
+  assert.equal(content.ttl_seconds, 300);
 
   world.clock.set('2026-10-16T12:00:00Z');
   const friday = (await world.gladys.fake.widgetGet(WIDGET_KEY, { language: 'en' })).data.content;
@@ -333,4 +333,43 @@ test('the timers are armed on the next change and cleared on stop', async (t) =>
   assert.equal(gladys.fake.sceneEvents[0].key, 'off_peak_started');
   app.stop();
   assert.equal(app.service.tickTimer, null);
+});
+
+test('a boundary passed during a restart still fires, once', async () => {
+  // The container was down at 12:30 and is back at 12:35.
+  const store = createMemoryStore();
+  const world = await createWorld({ at: '2026-10-12T10:35:00Z', store });
+  assert.deepEqual(
+    events(world).map((event) => [event.key, event.data.period, event.data.minutes_until_change]),
+    [['off_peak_started', 'off_peak_hours', 235]],
+  );
+  // Restarted again two minutes later: already fired.
+  const again = await createWorld({ at: '2026-10-12T10:37:00Z', store });
+  assert.deepEqual(events(again), []);
+  // Back 20 minutes after the boundary: too late.
+  const late = await createWorld({ at: '2026-10-12T10:50:00Z' });
+  assert.deepEqual(events(late), []);
+});
+
+test('after a stall, the last flip decides, even when the state looks unchanged', async () => {
+  // Off-peak at 07:00 (04:00-08:00), stalled until 12:35: off-peak again, but
+  // the 12:30 start is only 5 minutes old.
+  const world = await createWorld({ at: '2026-10-12T05:00:00Z' });
+  world.clock.set('2026-10-12T10:35:00Z');
+  await world.service.tick();
+  assert.deepEqual(
+    events(world).map((event) => event.key),
+    ['off_peak_started'],
+  );
+});
+
+test('a contract that has not started yet is announced by the widget', async () => {
+  const world = await createWorld({
+    contracts: [contractOf('edf-zen-weekend', { status: 'scheduled', valid_from: '2026-11-01' })],
+  });
+  const { content } = (await world.gladys.fake.widgetGet(WIDGET_KEY, { language: 'fr' })).data;
+  assert.equal(
+    content.components[0].text,
+    'Votre contrat EDF Zen Week-End commence le dim. 1 nov.',
+  );
 });
