@@ -23,10 +23,10 @@
     "@eslint/js": "^10.0.1",
     "date-holidays": "^3.37.0",
     "dayjs": "^1.11.23",
-    "eslint": "^10.12.0",
+    "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.13.0",
-    "joi": "^18.2.9",
+    "joi": "^18.3.0",
     "prettier": "^3.9.10"
   },
   "license": "Apache-2.0",
