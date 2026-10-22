@@ -1,6 +1,6 @@
 {
   "name": "gladys-edf-zen-weekend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "EDF Zen Week-End contract templates for Gladys Assistant: weekends, French public holidays and off-peak hours priced by the Gladys energy engine.",
   "type": "module",
