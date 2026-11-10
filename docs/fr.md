@@ -76,20 +76,21 @@ le vôtre.
 
 Les **heures creuses** sont fixées par Enedis pour chaque logement. Avec la réforme des heures creuses
 (2025-2027), chaque logement reçoit deux jeux de plages : un pour l'**hiver** (du 1er novembre au 31 mars)
-et un pour l'**été** (du 1er avril au 31 octobre). Les modèles avec heures creuses ont donc deux champs.
+et un pour l'**été** (du 1er avril au 31 octobre). Les modèles avec heures creuses ont donc des champs pour chaque saison.
 Vos heures figurent sur votre facture, dans votre compte Enedis (enedis.fr) et dans le courrier qu'Enedis
 envoie avant le changement. Si votre logement n'est pas encore passé aux heures saisonnières, saisissez
-les mêmes heures dans les deux champs.
+les mêmes heures pour l'hiver et l'été.
 
-Les deux champs sont vides au départ, et Gladys refuse d'enregistrer le contrat tant que l'un d'eux reste
-vide. Jusqu'à la version 1.0.1, ils étaient pré-remplis avec 4 h-8 h et 12 h 30-16 h 30, qui ne sont les
-heures que de certains logements : vérifiez celles d'un contrat créé avant.
+Chaque saison a **deux plages**, chacune avec un début et une fin au format `HH:MM`, à la minute près :
+par exemple `01:22` à `06:52`, puis `12:52` à `15:22`. Une fin avant le début passe minuit (`22:00` à
+`06:00`). Si votre logement n'a qu'une plage, recopiez-la dans la plage 2. Ne mettez jamais le même début et
+la même fin : ce serait toute la journée. Une heure mal écrite (`1:22`, `01h22`) est refusée par Gladys à
+l'enregistrement.
 
-La grille de l'assistant avance par demi-heure, alors que les heures de la réforme tombent souvent à la
-minute (par exemple 01:22-06:52). Arrondissez chaque début et chaque fin à la demi-heure **suivante** :
-01:22-06:52 devient 01:30-07:00. Gladys compte la consommation par demi-heure, chacune au prix de sa
-première minute : le coût calculé est le même qu'avec les heures exactes. Seuls les déclencheurs de scène
-partent alors à la demi-heure (01:30) et non à la minute où bascule votre compteur (01:22).
+Les champs sont pré-remplis avec `00:01` à `00:02`, une valeur qui ne facture aucune heure creuse : laissée
+telle quelle, elle ne donne jamais de fausses heures creuses, et le widget affiche « À saisir dans le
+contrat ». Jusqu'à la version 1.0.1, les heures étaient pré-remplies avec 4 h-8 h et 12 h 30-16 h 30, qui ne
+sont les heures que de certains logements : vérifiez celles d'un contrat créé avant.
 
 ### Contrat créé avant la version 1.1.0
 
@@ -188,9 +189,9 @@ date du changement. Votre facture fait toujours foi face aux valeurs pré-rempli
   peut en avoir d'autres.
 - La majoration des auto-producteurs (9,84 € HT par an) n'est pas comptée.
 - L'option Flex n'est pas prise en charge.
-- Les heures creuses suivent la grille de 30 minutes de l'assistant de Gladys : une heure à la minute
-  (01:22) s'arrondit à la demi-heure suivante, sans changer le coût calculé, mais les déclencheurs partent
-  à la demi-heure.
+- Gladys compte la consommation par demi-heure, chacune au prix de sa première minute : avec des heures
+  creuses de 01:22 à 06:52, la demi-heure de 01:00 est au plein tarif et celle de 06:30 au prix réduit.
+  Les déclencheurs de scène, eux, partent à la minute exacte.
 - Changer de jour choisi (deux fois par année contractuelle) revient à créer un nouveau contrat à la date du
   changement.
 - Sans lien avec EDF ni Enedis. « EDF » et « Zen Week-End » sont des marques de leurs propriétaires.

@@ -15,6 +15,7 @@ import {
   CHOSEN_DAYS,
   LEGACY_OFF_PEAK_INPUT,
   SEASONS,
+  UNSET_SLOT,
 } from './templates.js';
 import { holidayOn } from './holidays.js';
 import { addDays, localParts, localToUtc, parseTime, weekdayOf } from './time.js';
@@ -61,17 +62,24 @@ export function seasonOf(date) {
 }
 
 /**
- * The raw ["HH:MM", "HH:MM"] slots of each season. A contract created before
+ * The raw ["HH:MM", "HH:MM"] slots of each season, from its start and end
+ * inputs (a slot with a missing bound, or left at UNSET_SLOT, is left out). A contract created before
  * 1.1.0 has one `off_peak_slots` input, priced all year round by its stored
  * tariff: the same slots for both seasons.
  */
 function seasonalSlots(inputs) {
-  const list = (value) => (Array.isArray(value) ? value : []);
-  const seasonal = SEASONS.some((season) => Array.isArray(inputs[season.input]));
+  const seasonal = SEASONS.some((season) => season.inputs.flat().some((key) => key in inputs));
   return Object.fromEntries(
     SEASONS.map((season) => [
       season.key,
-      list(seasonal ? inputs[season.input] : inputs[LEGACY_OFF_PEAK_INPUT]),
+      seasonal
+        ? season.inputs
+            .map(([start, end]) => [inputs[start], inputs[end]])
+            .filter((slot) => slot.every((bound) => typeof bound === 'string'))
+            .filter((slot) => slot[0] !== UNSET_SLOT[0] || slot[1] !== UNSET_SLOT[1])
+        : Array.isArray(inputs[LEGACY_OFF_PEAK_INPUT])
+          ? inputs[LEGACY_OFF_PEAK_INPUT]
+          : [],
     ]),
   );
 }
@@ -94,7 +102,12 @@ export function buildSchedule(contract) {
   const seasons = Object.fromEntries(
     SEASONS.map((season) => [
       season.key,
-      { slots: compileSlots(raw[season.key]), rawSlots: raw[season.key] },
+      {
+        slots: compileSlots(raw[season.key]),
+        rawSlots: raw[season.key],
+        // An off-peak option whose hours of the season were never entered.
+        unset: option.off_peak_hours && raw[season.key].length === 0,
+      },
     ]),
   );
   const schedule = {
@@ -206,10 +219,11 @@ export function nextChange(schedule, ms) {
 export function offPeakOfDay(schedule, date) {
   const whole = dayPeriod(schedule, date);
   if (whole) {
-    return { whole, slots: [] };
+    return { whole, unset: false, slots: [] };
   }
   return {
     whole: null,
+    unset: seasonOfDate(schedule, date).unset,
     slots: seasonOfDate(schedule, date).rawSlots.filter((slot) => compileSlots([slot]).length > 0),
   };
 }

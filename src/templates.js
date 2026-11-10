@@ -31,7 +31,7 @@ export const HOLIDAY_VALUE = 'holiday';
 
 /**
  * Revision of the template structure, appended to the price grid date in the
- * template `version`. 2: off-peak hours by season (1.1.0).
+ * template `version`. 2: off-peak hours by season, to the minute (1.1.0).
  */
 export const TEMPLATE_REVISION = 2;
 
@@ -39,13 +39,36 @@ export const TEMPLATE_REVISION = 2;
  * The two seasons of the Enedis off-peak hours reform (2025-2027): each home
  * gets one set of slots from 1 November to 31 March and another from 1 April
  * to 31 October. Inclusive bounds, like the `season` condition of the core;
- * winter crosses 1 January. Input keys are stored in the users' contracts:
- * never rename one.
+ * winter crosses 1 January.
+ *
+ * Each season has two slots of two `string` inputs ("01:22"): the
+ * `time_intervals` grid of the core wizard only offers half-hours, and the
+ * reform hours fall on the minute. The core substitutes each placeholder
+ * inside the `time` array and checks the HH:MM pattern when the contract is
+ * saved. Input keys are stored in the users' contracts: never rename one.
  */
+export const SLOTS_PER_SEASON = 2;
+
+/**
+ * The default of the slot inputs. The core validates a manifest with the
+ * input defaults, and a `string` input without one with "sample": an invalid
+ * time, so the whole manifest would be refused. 00:01-00:02 is a valid time
+ * that no half-hour of consumption starts in (the core prices each one at its
+ * first minute): left as it is, it bills no off-peak hour, and the container
+ * treats it as not filled in (no event, "to be set" in the widget). The 1.0
+ * default (04:00-08:00, 12:30-16:30) looked real and was kept by mistake.
+ */
+export const UNSET_SLOT = ['00:01', '00:02'];
 export const SEASONS = [
-  { key: 'winter', input: 'off_peak_slots_winter', from: '11-01', to: '03-31' },
-  { key: 'summer', input: 'off_peak_slots_summer', from: '04-01', to: '10-31' },
-];
+  { key: 'winter', from: '11-01', to: '03-31' },
+  { key: 'summer', from: '04-01', to: '10-31' },
+].map((season) => ({
+  ...season,
+  inputs: Array.from({ length: SLOTS_PER_SEASON }, (_, index) => [
+    `off_peak_${season.key}_${index + 1}_start`,
+    `off_peak_${season.key}_${index + 1}_end`,
+  ]),
+}));
 
 /**
  * The single input of the templates before 1.1.0, same hours all year round.
@@ -166,6 +189,77 @@ function subscriptionGrid(option, decimal) {
     .join(' · ');
 }
 
+const SEASON_TEXT = {
+  winter: {
+    en: 'winter, Nov-Mar',
+    fr: 'hiver, nov.-mars',
+    de: 'Winter, Nov.-März',
+    es: 'invierno, nov.-mar.',
+  },
+  summer: {
+    en: 'summer, Apr-Oct',
+    fr: 'été, avr.-oct.',
+    de: 'Sommer, Apr.-Okt.',
+    es: 'verano, abr.-oct.',
+  },
+};
+const BOUND_TEXT = {
+  start: { en: 'start', fr: 'début', de: 'Beginn', es: 'inicio' },
+  end: { en: 'end', fr: 'fin', de: 'Ende', es: 'fin' },
+};
+
+/** "Off-peak (winter, Nov-Mar), slot 1 start". */
+function slotLabel(season, slot, bound) {
+  const s = SEASON_TEXT[season];
+  const b = BOUND_TEXT[bound];
+  return {
+    en: `Off-peak (${s.en}), slot ${slot} ${b.en}`,
+    fr: `HC (${s.fr}), plage ${slot} : ${b.fr}`,
+    de: `Nebenzeit (${s.de}), Fenster ${slot} ${b.de}`,
+    es: `Horas valle (${s.es}), franja ${slot} ${b.es}`,
+  };
+}
+
+/** Where to read the hours on the first field of a season, the format on the others. */
+function slotDescription(season, slot, bound) {
+  if (slot === 1 && bound === 'start') {
+    const range =
+      season === 'winter'
+        ? {
+            en: '1 Nov to 31 Mar',
+            fr: 'du 1/11 au 31/03',
+            de: '1.11. bis 31.3.',
+            es: 'del 1/11 al 31/3',
+          }
+        : {
+            en: '1 Apr to 31 Oct',
+            fr: 'du 1/04 au 31/10',
+            de: '1.4. bis 31.10.',
+            es: 'del 1/4 al 31/10',
+          };
+    return {
+      en: `HH:MM, to the minute (01:22). Weekdays, ${range.en}. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in winter and summer.`,
+      fr: `HH:MM, à la minute (01:22). En semaine, ${range.fr}. Voir votre facture, votre compte Enedis ou le courrier de la réforme des heures creuses. Sans heures saisonnières, mêmes heures en hiver et en été.`,
+      de: `HH:MM, minutengenau (01:22). Werktags, ${range.de}. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten im Winter und Sommer.`,
+      es: `HH:MM, al minuto (01:22). Entre semana, ${range.es}. En su factura, su cuenta Enedis o la carta de la reforma de horas valle. Sin horas estacionales: mismas horas en invierno y en verano.`,
+    };
+  }
+  if (slot === 1) {
+    return {
+      en: 'HH:MM (06:52). An end before the start runs past midnight (22:00 → 06:00).',
+      fr: 'HH:MM (06:52). Une fin avant le début passe minuit (22:00 → 06:00).',
+      de: 'HH:MM (06:52). Ein Ende vor dem Beginn geht über Mitternacht (22:00 → 06:00).',
+      es: 'HH:MM (06:52). Un fin anterior al inicio pasa de medianoche (22:00 → 06:00).',
+    };
+  }
+  return {
+    en: 'HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.',
+    fr: 'HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.',
+    de: 'HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.',
+    es: 'HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día.',
+  };
+}
+
 function inputsOf(option) {
   const prices = TARIFF.options[option.tariff];
   const inputs = [];
@@ -191,45 +285,21 @@ function inputsOf(option) {
     });
   }
   if (option.off_peak_hours) {
-    // No default on purpose: the 1.0 default (04:00-08:00, 12:30-16:30) left
-    // users with off-peak hours that were not theirs. The wizard starts with
-    // an empty grid, and the core refuses a contract with an empty one.
-    inputs.push(
-      {
-        key: SEASONS[0].input,
-        type: 'time_intervals',
-        label: {
-          en: 'Enedis off-peak hours, November to March',
-          fr: 'Heures creuses Enedis, novembre à mars',
-          de: 'Enedis-Nebenzeiten, November bis März',
-          es: 'Horas valle Enedis, de noviembre a marzo',
-        },
-        description: {
-          en: 'Weekdays, 1 Nov to 31 Mar. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in both fields. Half-hour grid: round up (01:22 → 01:30), Gladys bills by half-hour.',
-          fr: 'En semaine, du 1/11 au 31/03. Voir votre facture, votre compte Enedis ou le courrier de la réforme. Sans heures saisonnières, mêmes heures dans les deux champs. Grille par demi-heure : arrondir à la suivante (01:22 → 01:30), Gladys facture par demi-heure.',
-          de: 'Werktags, 1.11. bis 31.3. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten in beiden Feldern. Halbstundenraster: aufrunden (01:22 → 01:30), Gladys rechnet halbstündlich ab.',
-          es: 'Entre semana, del 1/11 al 31/3. En su factura, su cuenta Enedis o la carta de la reforma. Sin horas estacionales: mismas horas en ambos campos. Medias horas: redondee hacia arriba (01:22 → 01:30), Gladys factura por media hora.',
-        },
-        required: true,
-      },
-      {
-        key: SEASONS[1].input,
-        type: 'time_intervals',
-        label: {
-          en: 'Enedis off-peak hours, April to October',
-          fr: 'Heures creuses Enedis, avril à octobre',
-          de: 'Enedis-Nebenzeiten, April bis Oktober',
-          es: 'Horas valle Enedis, de abril a octubre',
-        },
-        description: {
-          en: 'Weekdays, 1 Apr to 31 Oct. Same sources and same rounding as the November to March hours; the same hours if your home has not switched to seasonal off-peak hours yet.',
-          fr: 'En semaine, du 1/04 au 31/10. Mêmes sources et même arrondi que pour novembre à mars ; les mêmes heures si votre logement n’est pas encore passé aux heures creuses saisonnières.',
-          de: 'Werktags, 1.4. bis 31.10. Gleiche Quellen und gleiche Rundung wie für November bis März; dieselben Zeiten, wenn deine Wohnung noch keine saisonalen Nebenzeiten hat.',
-          es: 'Entre semana, del 1/4 al 31/10. Mismas fuentes y mismo redondeo que de noviembre a marzo; las mismas horas si su vivienda aún no tiene horas valle estacionales.',
-        },
-        required: true,
-      },
-    );
+    // Pre-filled with UNSET_SLOT, never with plausible hours.
+    for (const season of SEASONS) {
+      season.inputs.forEach((pair, index) => {
+        pair.forEach((key, bound) => {
+          inputs.push({
+            key,
+            type: 'string',
+            label: slotLabel(season.key, index + 1, bound === 0 ? 'start' : 'end'),
+            description: slotDescription(season.key, index + 1, bound === 0 ? 'start' : 'end'),
+            default: UNSET_SLOT[bound],
+            required: true,
+          });
+        });
+      });
+    }
   }
   inputs.push(
     {
@@ -321,7 +391,7 @@ function tariffOf(option) {
       rules.push(
         reduced(RULE_LABELS.off_peak_hours, {
           season: { from: season.from, to: season.to },
-          time: `{{input:${season.input}}}`,
+          time: season.inputs.map((pair) => pair.map((key) => `{{input:${key}}}`)),
         }),
       );
     }

@@ -275,12 +275,18 @@ Flex (jours « sobriété » annoncés par EDF) non couverte.
 - Réforme Enedis 2025-2027 : deux saisons, hiver 01/11 → 31/03 et été 01/04 → 31/10 (`SEASONS` de
   `src/templates.js`), une règle « Heures creuses » `season` + `time` par saison. Les saisons se lisent
   sur la date locale du fuseau du contrat, comme le moteur.
-- **Le formulaire du cœur (`HourSlotGrid`) n'a qu'une grille de 48 demi-heures** (vérifié en 5.3.2) : une
-  plage 01:22 est impossible à saisir, et un défaut hors grille serait effacé au premier clic. Mais le moteur
-  facture chaque demi-heure de consommation à sa **première minute** : arrondir début et fin à la demi-heure
-  **suivante** donne exactement le même coût. Seuls nos déclencheurs à la minute en pâtissent.
-- **Pas de défaut** pour les heures creuses : le défaut 04:00-08:00 / 12:30-16:30 de la 1.0 a été gardé à
-  tort. Un champ vide donne `time: []`, refusé par le cœur (`minItems: 1`) à l'enregistrement.
+- **Saisie à la minute par champs `string`** : la grille `time_intervals` du cœur (`HourSlotGrid`, vérifié en
+  5.3.2) n'a que 48 demi-heures, et un défaut hors grille est effacé au premier clic. Chaque saison a donc
+  deux plages de deux champs texte (`off_peak_<saison>_<n>_start|end`), placés un par un dans le tableau
+  `time` : `substituteInputs` remplace un placeholder seul par sa valeur, à n'importe quelle profondeur, et
+  le motif `HH:MM` du schéma refuse une faute de frappe à l'enregistrement. Le moteur facture chaque
+  demi-heure à sa première minute ; nos déclencheurs, eux, partent à la minute.
+- **Un champ `string` doit avoir un défaut valide** : sans défaut, la validation du manifeste par le cœur
+  (`sampleInputValues`) substitue `"sample"`, qui n'est pas une heure, et **rejette tout le manifeste**.
+  Défaut `00:01`-`00:02` (`UNSET_SLOT`) : aucune demi-heure n'y commence, donc rien de facturé, et le
+  conteneur la traite comme non saisie (widget « À saisir dans le contrat »). Jamais `00:00`-`00:00`, qui
+  vaut toute la journée. L'ancien défaut 04:00-08:00 / 12:30-16:30, plausible, avait été gardé à tort.
+- Une entrée de modèle n'accepte pas de champ `placeholder` (`INPUT_FIELDS`).
 - **Compatibilité** : le cœur garde le tarif substitué du contrat, et **modifier un contrat existant
   rouvre son tarif en JSON**, sans les champs du modèle : un nouveau modèle ne touche jamais un ancien
   contrat. `src/schedule.js` lit encore `off_peak_slots` (1.0) pour les deux saisons quand aucun champ

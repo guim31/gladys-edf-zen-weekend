@@ -21,7 +21,7 @@ import {
   seasonOf,
 } from '../src/schedule.js';
 import { localParts, localToUtc } from '../src/time.js';
-import { SAMPLE_SLOTS, allYear, wizardInputs } from './helpers/inputs.js';
+import { SAMPLE_SLOTS, allYear, seasonal, wizardInputs } from './helpers/inputs.js';
 
 const { templates } = buildEnergyContracts();
 // The templates of 1.0.1: the tariffs the contracts created with them store.
@@ -49,27 +49,26 @@ const PERIOD_OF_LABEL = {
 };
 
 // The reform example: hours in force from 12 January 2027 for one home.
-const REFORM = {
-  off_peak_slots_winter: [
-    ['01:22', '06:52'],
-    ['12:52', '15:22'],
-  ],
-  off_peak_slots_summer: [
-    ['00:22', '05:22'],
-    ['13:22', '16:22'],
-  ],
-};
+const REFORM_WINTER = [
+  ['01:22', '06:52'],
+  ['12:52', '15:22'],
+];
+const REFORM_SUMMER = [
+  ['00:22', '05:22'],
+  ['13:22', '16:22'],
+];
+const REFORM = seasonal(REFORM_WINTER, REFORM_SUMMER);
 
 const VARIANTS = [
   {},
   allYear([['22:00', '06:00']]),
-  {
-    off_peak_slots_winter: [['22:00', '06:00']],
-    off_peak_slots_summer: [
+  seasonal(
+    [['22:00', '06:00']],
+    [
       ['01:30', '07:30'],
       ['13:00', '15:00'],
     ],
-  },
+  ),
   { ...allYear([['23:00', '07:00']]), chosen_day: 'wed' },
   { chosen_day: 'fri' },
 ];
@@ -180,7 +179,7 @@ test('a contract created before 1.1.0 (one off_peak_slots input) keeps its sched
   );
   assert.notEqual(
     buildSchedule(contractOf(entry, REFORM)).signature,
-    buildSchedule(contractOf(entry, allYear(REFORM.off_peak_slots_winter))).signature,
+    buildSchedule(contractOf(entry, allYear(REFORM_WINTER))).signature,
   );
 });
 
@@ -202,8 +201,8 @@ test('reform hours: the next change and the day slots follow the season', () => 
     at: Date.parse('2027-03-31T22:22:00Z'),
     period: 'off_peak_hours',
   });
-  assert.deepEqual(offPeakOfDay(schedule, '2027-03-31').slots, REFORM.off_peak_slots_winter);
-  assert.deepEqual(offPeakOfDay(schedule, '2027-04-01').slots, REFORM.off_peak_slots_summer);
+  assert.deepEqual(offPeakOfDay(schedule, '2027-03-31').slots, REFORM_WINTER);
+  assert.deepEqual(offPeakOfDay(schedule, '2027-04-01').slots, REFORM_SUMMER);
   // Tuesday 12 January 2027 06:51 is off-peak, 06:52 is not.
   assert.equal(periodAt(schedule, Date.parse('2027-01-12T05:51:00Z')), 'off_peak_hours');
   assert.equal(periodAt(schedule, Date.parse('2027-01-12T05:52:00Z')), 'peak');
@@ -214,12 +213,16 @@ test('a contract with the seasonal inputs ignores a stray off_peak_slots', () =>
   const schedule = buildSchedule(
     contractOf(entry, { ...REFORM, off_peak_slots: [['22:00', '06:00']] }),
   );
-  assert.deepEqual(offPeakOfDay(schedule, '2027-01-12').slots, REFORM.off_peak_slots_winter);
-  // Only one season filled (the core refuses it): no off-peak hours that season.
+  assert.deepEqual(offPeakOfDay(schedule, '2027-01-12').slots, REFORM_WINTER);
+  // A season left at the default 00:01-00:02: no off-peak hours, and said so.
   const half = buildSchedule(
-    contractOf(entry, { off_peak_slots_winter: [['22:00', '06:00']], off_peak_slots_summer: [] }),
+    contractOf(entry, {
+      ...seasonal([['22:00', '06:00']], [['00:01', '00:02']]),
+    }),
   );
-  assert.deepEqual(offPeakOfDay(half, '2027-06-15').slots, []);
+  assert.deepEqual(offPeakOfDay(half, '2027-06-15'), { whole: null, unset: true, slots: [] });
+  assert.equal(periodAt(half, Date.parse('2027-06-14T22:01:30Z')), 'peak');
+  assert.deepEqual(offPeakOfDay(half, '2027-01-12').unset, false);
 });
 
 test('the next change is the valid_until of the price the engine shows', () => {
@@ -313,6 +316,13 @@ test('a contract of another template has no schedule; broken inputs are ignored'
   assert.equal(schedule.chosenDay, null);
   assert.equal(schedule.peakPrice, null);
   assert.equal(schedule.timeZone, 'Europe/Paris');
+  // A text input the core would refuse anyway (1:22, 25:00) is left out.
+  const typed = buildSchedule({
+    id: 'y',
+    template_key: entry.key,
+    inputs: { ...allYear([['12:00', '14:00']]), off_peak_winter_2_start: '1:22' },
+  });
+  assert.deepEqual(typed.seasons.winter.slots, [{ start: 720, end: 840 }]);
 });
 
 test('the slots split at midnight like the engine', () => {
@@ -327,11 +337,24 @@ test('the slots split at midnight like the engine', () => {
 test("a day's off-peak hours: whole reduced days and the slots of the others", () => {
   const entry = templates.find((t) => t.key === 'edf-zen-weekend-plus-off-peak');
   const schedule = buildSchedule(contractOf(entry, { chosen_day: 'wed' }));
-  assert.deepEqual(offPeakOfDay(schedule, '2026-10-17'), { whole: 'weekend', slots: [] });
-  assert.deepEqual(offPeakOfDay(schedule, '2026-11-11'), { whole: 'holiday', slots: [] });
-  assert.deepEqual(offPeakOfDay(schedule, '2026-10-14'), { whole: 'chosen_day', slots: [] });
+  assert.deepEqual(offPeakOfDay(schedule, '2026-10-17'), {
+    whole: 'weekend',
+    unset: false,
+    slots: [],
+  });
+  assert.deepEqual(offPeakOfDay(schedule, '2026-11-11'), {
+    whole: 'holiday',
+    unset: false,
+    slots: [],
+  });
+  assert.deepEqual(offPeakOfDay(schedule, '2026-10-14'), {
+    whole: 'chosen_day',
+    unset: false,
+    slots: [],
+  });
   assert.deepEqual(offPeakOfDay(schedule, '2026-10-13'), {
     whole: null,
+    unset: false,
     slots: SAMPLE_SLOTS,
   });
   assert.equal(isOffPeak('peak'), false);

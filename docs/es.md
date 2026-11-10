@@ -77,20 +77,20 @@ indique la suya.
 
 Las **horas valle** las fija Enedis para cada vivienda. Con la reforma de las horas valle (2025-2027), cada
 vivienda recibe dos juegos de franjas: uno para el **invierno** (del 1 de noviembre al 31 de marzo) y otro
-para el **verano** (del 1 de abril al 31 de octubre). Por eso las plantillas con horas valle tienen dos
-campos. Sus horas figuran en su factura, en su cuenta Enedis (enedis.fr) y en la carta que Enedis envía
-antes del cambio. Si su vivienda aún no tiene horas estacionales, introduzca las mismas horas en ambos
-campos.
+para el **verano** (del 1 de abril al 31 de octubre). Por eso las plantillas con horas valle tienen
+campos para cada temporada. Sus horas figuran en su factura, en su cuenta Enedis (enedis.fr) y en la carta que Enedis envía
+antes del cambio. Si su vivienda aún no tiene horas estacionales, introduzca las mismas horas para el
+invierno y el verano.
 
-Los dos campos empiezan vacíos, y Gladys se niega a guardar el contrato mientras uno de ellos esté vacío.
-Hasta la versión 1.0.1 venían prerrellenados con 04:00-08:00 y 12:30-16:30, las horas de solo algunas
-viviendas: compruebe las de un contrato creado antes.
+Cada temporada tiene **dos franjas**, cada una con un inicio y un fin en formato `HH:MM`, al minuto: por
+ejemplo `01:22` a `06:52`, y luego `12:52` a `15:22`. Un fin anterior al inicio pasa de medianoche (`22:00` a
+`06:00`). Si su vivienda tiene una sola franja, repítala en la franja 2. No ponga nunca el mismo inicio y el
+mismo fin: sería todo el día. Gladys rechaza al guardar una hora mal escrita (`1:22`, `01h22`).
 
-La cuadrícula del asistente avanza por medias horas, mientras que las horas de la reforma suelen caer en el
-minuto (por ejemplo 01:22-06:52). Redondee cada inicio y cada fin a la media hora **siguiente**:
-01:22-06:52 pasa a ser 01:30-07:00. Gladys cuenta el consumo por medias horas, cada una al precio de su
-primer minuto: el coste calculado es el mismo que con las horas exactas. Solo los disparadores de escena
-saltan entonces a la media hora (01:30) y no en el minuto en que cambia su contador (01:22).
+Los campos vienen prerrellenados con `00:01` a `00:02`, un valor que no factura ninguna hora valle: si se
+deja así, nunca da horas valle falsas, y el widget muestra «Por indicar en el contrato». Hasta la versión
+1.0.1 las horas venían prerrellenadas con 04:00-08:00 y 12:30-16:30, las horas de solo algunas viviendas:
+compruebe las de un contrato creado antes.
 
 ### Contrato creado antes de la versión 1.1.0
 
@@ -187,9 +187,9 @@ partir de la fecha del cambio. Su factura prevalece siempre sobre los valores pr
   antiguo puede tener otros.
 - El recargo para autoproductores (9,84 € sin impuestos al año) no se incluye.
 - La opción Flex no está soportada.
-- Las horas valle siguen la cuadrícula de 30 minutos del asistente de Gladys: una hora en el minuto (01:22)
-  se redondea a la media hora siguiente, con el mismo coste calculado, pero los disparadores saltan a la
-  media hora.
+- Gladys cuenta el consumo por medias horas, cada una al precio de su primer minuto: con horas valle de
+  01:22 a 06:52, la media hora de las 01:00 va a precio completo y la de las 06:30 a precio reducido. Los
+  disparadores de escena saltan en el minuto exacto.
 - Cambiar el día elegido (dos veces por año contractual) supone un nuevo contrato a partir de la fecha del
   cambio.
 - Sin relación con EDF ni con Enedis. «EDF» y «Zen Week-End» son marcas de sus propietarios.

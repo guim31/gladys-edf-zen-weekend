@@ -76,20 +76,21 @@ vorbelegt: Trage deine ein.
 
 Die **Nebenzeiten** legt Enedis für jede Wohnung fest. Mit der Nebenzeitreform (2025-2027) bekommt jede
 Wohnung zwei Sätze von Zeitfenstern: einen für den **Winter** (1. November bis 31. März) und einen für den
-**Sommer** (1. April bis 31. Oktober). Die Vorlagen mit Nebenzeiten haben deshalb zwei Felder. Deine Zeiten
+**Sommer** (1. April bis 31. Oktober). Die Vorlagen mit Nebenzeiten haben deshalb Felder für jede Saison. Deine Zeiten
 stehen auf deiner Rechnung, in deinem Enedis-Konto (enedis.fr) und im Schreiben, das Enedis vor der
-Umstellung schickt. Hat deine Wohnung noch keine saisonalen Zeiten, gib in beiden Feldern dieselben Zeiten
+Umstellung schickt. Hat deine Wohnung noch keine saisonalen Zeiten, gib für Winter und Sommer dieselben Zeiten
 ein.
 
-Beide Felder sind anfangs leer, und Gladys speichert den Vertrag nicht, solange eines davon leer ist. Bis
-Version 1.0.1 waren sie mit 04:00-08:00 und 12:30-16:30 vorbelegt, den Zeiten nur mancher Wohnungen: prüfe
-die eines vorher angelegten Vertrags.
+Jede Saison hat **zwei Zeitfenster**, jedes mit Beginn und Ende im Format `HH:MM`, minutengenau: zum
+Beispiel `01:22` bis `06:52`, dann `12:52` bis `15:22`. Ein Ende vor dem Beginn geht über Mitternacht
+(`22:00` bis `06:00`). Hat deine Wohnung nur ein Fenster, wiederhole es in Fenster 2. Gib nie denselben
+Beginn und dasselbe Ende ein: das wäre der ganze Tag. Eine falsch geschriebene Zeit (`1:22`, `01h22`) lehnt
+Gladys beim Speichern ab.
 
-Das Raster des Assistenten geht in halben Stunden, die Zeiten der Reform fallen aber oft auf die Minute
-(zum Beispiel 01:22-06:52). Runde jeden Beginn und jedes Ende auf die **nächste** halbe Stunde auf:
-01:22-06:52 wird 01:30-07:00. Gladys zählt den Verbrauch halbstündlich, jede halbe Stunde zum Preis ihrer
-ersten Minute: Die berechneten Kosten sind dieselben wie mit den genauen Zeiten. Nur die Szenenauslöser
-kommen dann zur halben Stunde (01:30) und nicht zu der Minute, in der dein Zähler umschaltet (01:22).
+Die Felder sind mit `00:01` bis `00:02` vorbelegt, einem Wert, der keine Nebenzeit abrechnet: So belassen
+ergibt er nie falsche Nebenzeiten, und das Widget zeigt „Im Vertrag eintragen“. Bis Version 1.0.1 waren die
+Zeiten mit 04:00-08:00 und 12:30-16:30 vorbelegt, den Zeiten nur mancher Wohnungen: prüfe die eines vorher
+angelegten Vertrags.
 
 ### Vertrag, der vor Version 1.1.0 angelegt wurde
 
@@ -186,9 +187,9 @@ aktualisierten Vorlage an. Deine Rechnung gilt immer vor den vorbelegten Werten.
 - Die Preise sind die von EDF am 15. September 2026 für Neuverträge; ein älterer Vertrag kann andere haben.
 - Der Aufschlag für Eigenerzeuger (9,84 € netto pro Jahr) ist nicht enthalten.
 - Die Option Flex wird nicht unterstützt.
-- Die Nebenzeiten folgen dem 30-Minuten-Raster des Gladys-Assistenten: Eine Zeit auf die Minute (01:22)
-  wird auf die nächste halbe Stunde aufgerundet, bei gleichen Kosten, aber die Auslöser kommen zur halben
-  Stunde.
+- Gladys zählt den Verbrauch halbstündlich, jede halbe Stunde zum Preis ihrer ersten Minute: Mit
+  Nebenzeiten von 01:22 bis 06:52 gilt für die halbe Stunde ab 01:00 der volle Preis, für die ab 06:30 der
+  günstigere. Die Szenenauslöser kommen minutengenau.
 - Den gewählten Tag zu ändern (zweimal pro Vertragsjahr) bedeutet einen neuen Vertrag ab dem Datum der
   Änderung.
 - Nicht mit EDF oder Enedis verbunden. „EDF“ und „Zen Week-End“ sind Marken ihrer Inhaber.

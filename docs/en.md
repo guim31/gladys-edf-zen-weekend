@@ -76,19 +76,19 @@ yours.
 
 The **off-peak hours** are set by Enedis for each home. With the off-peak hours reform (2025-2027), each
 home gets two sets of slots: one for **winter** (1 November to 31 March) and one for **summer** (1 April to
-31 October). The templates with off-peak hours therefore have two fields. Your hours are on your bill, in
+31 October). The templates with off-peak hours therefore have fields for each season. Your hours are on your bill, in
 your Enedis account (enedis.fr) and in the letter Enedis sends before the change. If your home has not
-switched to seasonal hours yet, enter the same hours in both fields.
+switched to seasonal hours yet, enter the same hours for winter and summer.
 
-Both fields start empty, and Gladys refuses to save the contract while one of them is empty. Up to version
-1.0.1 they were pre-filled with 04:00-08:00 and 12:30-16:30, the hours of some homes only: check those of a
+Each season has **two slots**, each with a start and an end as `HH:MM`, to the minute: for example `01:22`
+to `06:52`, then `12:52` to `15:22`. An end before the start runs past midnight (`22:00` to `06:00`). If your
+home has a single slot, repeat it in slot 2. Never enter the same start and end: that is the whole day. A
+time written wrong (`1:22`, `01h22`) is refused by Gladys when the contract is saved.
+
+The fields are pre-filled with `00:01` to `00:02`, a value that bills no off-peak hour: left as it is, it
+never gives false off-peak hours, and the widget shows "To set in the contract". Up to version 1.0.1 the
+hours were pre-filled with 04:00-08:00 and 12:30-16:30, the hours of some homes only: check those of a
 contract created before.
-
-The wizard grid moves by half-hours, while the reform hours often fall on the minute (for example
-01:22-06:52). Round each start and each end up to the **next** half-hour: 01:22-06:52 becomes 01:30-07:00.
-Gladys counts the consumption by half-hour, each at the price of its first minute: the computed cost is the
-same as with the exact hours. Only the scene triggers then fire on the half-hour (01:30), not at the minute
-your meter switches (01:22).
 
 ### Contract created before version 1.1.0
 
@@ -183,8 +183,9 @@ Always trust your bill over the pre-filled values.
 - Prices are those of EDF on 15 September 2026 for new subscriptions; an older contract may have others.
 - The self-producer surcharge (9.84 EUR/year excluding taxes) is not included.
 - The Flex option is not supported.
-- The off-peak hours follow the 30-minute grid of the Gladys wizard: an hour on the minute (01:22) is
-  rounded up to the next half-hour, with the same computed cost, but the triggers fire on the half-hour.
+- Gladys counts the consumption by half-hour, each at the price of its first minute: with off-peak hours
+  from 01:22 to 06:52, the 01:00 half-hour is at the full price and the 06:30 one at the reduced price. The
+  scene triggers fire at the exact minute.
 - Changing the chosen day (twice a contractual year) means a new contract from the date of the change.
 - Not affiliated with EDF or Enedis. "EDF" and "Zen Week-End" are trademarks of their owners.
 
