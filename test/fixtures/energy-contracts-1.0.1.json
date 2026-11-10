@@ -1,0 +1,585 @@
+{
+  "_comment": "energy_contracts.templates of the 1.0.1 manifest: the tariffs the contracts created before 1.1.0 store (one off_peak_slots input).",
+  "templates": [
+    {
+      "key": "edf-zen-weekend",
+      "name": {
+        "en": "EDF Zen Week-End (Week-End option)",
+        "fr": "EDF Zen Week-End (option Week-End)",
+        "de": "EDF Zen Week-End (Option Week-End)",
+        "es": "EDF Zen Week-End (opción Week-End)"
+      },
+      "description": {
+        "en": "Reduced price all weekend and on national public holidays, one price on the other days.",
+        "fr": "Prix réduit tout le week-end et les jours fériés nationaux, un seul prix les autres jours.",
+        "de": "Günstigerer Preis am ganzen Wochenende und an landesweiten Feiertagen, ein Preis an den übrigen Tagen.",
+        "es": "Precio reducido todo el fin de semana y los festivos nacionales, un único precio los demás días."
+      },
+      "country": "FR",
+      "currency": "EUR",
+      "timezone": "Europe/Paris",
+      "pricing_mode": "rules",
+      "version": "2026-09-15",
+      "calendars": ["holidays-fr"],
+      "inputs": [
+        {
+          "key": "peak_price",
+          "type": "number",
+          "unit": "EUR/kWh",
+          "label": {
+            "en": "Weekday price",
+            "fr": "Prix en semaine",
+            "de": "Preis werktags",
+            "es": "Precio entre semana"
+          },
+          "description": {
+            "en": "EDF price including taxes from 2026-09-15. Correct it if your bill shows another one.",
+            "fr": "Prix EDF TTC au 2026-09-15. Corrigez-le si votre facture en indique un autre.",
+            "de": "EDF-Bruttopreis ab 2026-09-15. Korrigiere ihn, wenn deine Rechnung einen anderen zeigt.",
+            "es": "Precio EDF con impuestos desde el 2026-09-15. Corríjalo si su factura indica otro."
+          },
+          "default": 0.2285,
+          "required": true
+        },
+        {
+          "key": "off_peak_price",
+          "type": "number",
+          "unit": "EUR/kWh",
+          "label": {
+            "en": "Weekend and holiday price",
+            "fr": "Prix week-end et jours fériés",
+            "de": "Preis Wochenende und Feiertage",
+            "es": "Precio fin de semana y festivos"
+          },
+          "description": {
+            "en": "EDF price including taxes from 2026-09-15, the same in every reduced period of the option.",
+            "fr": "Prix EDF TTC au 2026-09-15, le même pour toutes les périodes réduites de l'option.",
+            "de": "EDF-Bruttopreis ab 2026-09-15, gleich in allen günstigeren Zeiten der Option.",
+            "es": "Precio EDF con impuestos desde el 2026-09-15, el mismo en todos los periodos reducidos de la opción."
+          },
+          "default": 0.171,
+          "required": true
+        },
+        {
+          "key": "subscription",
+          "type": "number",
+          "unit": "EUR/month",
+          "label": {
+            "en": "Monthly subscription (by subscribed power)",
+            "fr": "Abonnement mensuel (selon la puissance)",
+            "de": "Monatliche Grundgebühr (nach Anschlussleistung)",
+            "es": "Abono mensual (según la potencia contratada)"
+          },
+          "description": {
+            "en": "Pre-filled for 6 kVA. EDF grid in EUR/month including taxes: 3 kVA 12.13 · 6 kVA 15.86 · 9 kVA 19.88 · 12 kVA 23.76 · 15 kVA 27.40 · 18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88.",
+            "fr": "Pré-rempli pour 6 kVA. Grille EDF en €/mois TTC : 3 kVA 12,13 · 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+            "de": "Vorbelegt für 6 kVA. EDF-Tabelle in €/Monat brutto: 3 kVA 12,13 · 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+            "es": "Prerrellenado para 6 kVA. Tabla EDF en €/mes con impuestos: 3 kVA 12,13 · 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88."
+          },
+          "default": 15.86,
+          "required": true
+        }
+      ],
+      "tariff": {
+        "tariff_version": 1,
+        "calendars": ["holidays-fr"],
+        "components": [
+          {
+            "key": "energy",
+            "kind": "consumption",
+            "rules": [
+              {
+                "label": "Jour férié",
+                "when": {
+                  "calendar": {
+                    "holidays-fr": "holiday"
+                  }
+                },
+                "price": "{{input:off_peak_price}}"
+              },
+              {
+                "label": "Week-end",
+                "when": {
+                  "weekdays": ["sat", "sun"]
+                },
+                "price": "{{input:off_peak_price}}"
+              }
+            ],
+            "fallback": {
+              "label": "Semaine",
+              "price": "{{input:peak_price}}"
+            }
+          },
+          {
+            "key": "subscription",
+            "kind": "fixed",
+            "amount": "{{input:subscription}}",
+            "per": "month"
+          }
+        ]
+      }
+    },
+    {
+      "key": "edf-zen-weekend-off-peak",
+      "name": {
+        "en": "EDF Zen Week-End (Off-peak hours + weekend)",
+        "fr": "EDF Zen Week-End (option Heures Creuses + WE)",
+        "de": "EDF Zen Week-End (Nebenzeiten + Wochenende)",
+        "es": "EDF Zen Week-End (horas valle + fin de semana)"
+      },
+      "description": {
+        "en": "Off-peak price all weekend, on national public holidays and during your Enedis off-peak hours on the other days.",
+        "fr": "Prix heures creuses tout le week-end, les jours fériés nationaux et pendant vos heures creuses Enedis les autres jours.",
+        "de": "Nebenzeitpreis am ganzen Wochenende, an landesweiten Feiertagen und an den übrigen Tagen während deiner Enedis-Nebenzeiten.",
+        "es": "Precio de horas valle todo el fin de semana, los festivos nacionales y durante sus horas valle Enedis los demás días."
+      },
+      "country": "FR",
+      "currency": "EUR",
+      "timezone": "Europe/Paris",
+      "pricing_mode": "rules",
+      "version": "2026-09-15",
+      "calendars": ["holidays-fr"],
+      "inputs": [
+        {
+          "key": "off_peak_slots",
+          "type": "time_intervals",
+          "label": {
+            "en": "Enedis off-peak hours (weekdays)",
+            "fr": "Heures creuses Enedis (en semaine)",
+            "de": "Enedis-Nebenzeiten (werktags)",
+            "es": "Horas valle Enedis (entre semana)"
+          },
+          "description": {
+            "en": "Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.",
+            "fr": "Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.",
+            "de": "Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.",
+            "es": "Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30."
+          },
+          "default": [
+            ["04:00", "08:00"],
+            ["12:30", "16:30"]
+          ],
+          "required": true
+        },
+        {
+          "key": "peak_price",
+          "type": "number",
+          "unit": "EUR/kWh",
+          "label": {
+            "en": "Peak hours price",
+            "fr": "Prix heures pleines",
+            "de": "Preis Hauptzeit",
+            "es": "Precio horas punta"
+          },
+          "description": {
+            "en": "EDF price including taxes from 2026-09-15. Correct it if your bill shows another one.",
+            "fr": "Prix EDF TTC au 2026-09-15. Corrigez-le si votre facture en indique un autre.",
+            "de": "EDF-Bruttopreis ab 2026-09-15. Korrigiere ihn, wenn deine Rechnung einen anderen zeigt.",
+            "es": "Precio EDF con impuestos desde el 2026-09-15. Corríjalo si su factura indica otro."
+          },
+          "default": 0.2359,
+          "required": true
+        },
+        {
+          "key": "off_peak_price",
+          "type": "number",
+          "unit": "EUR/kWh",
+          "label": {
+            "en": "Off-peak, weekend and holiday price",
+            "fr": "Prix heures creuses, week-end et fériés",
+            "de": "Preis Nebenzeit, Wochenende und Feiertage",
+            "es": "Precio horas valle, fin de semana y festivos"
+          },
+          "description": {
+            "en": "EDF price including taxes from 2026-09-15, the same in every reduced period of the option.",
+            "fr": "Prix EDF TTC au 2026-09-15, le même pour toutes les périodes réduites de l'option.",
+            "de": "EDF-Bruttopreis ab 2026-09-15, gleich in allen günstigeren Zeiten der Option.",
+            "es": "Precio EDF con impuestos desde el 2026-09-15, el mismo en todos los periodos reducidos de la opción."
+          },
+          "default": 0.1762,
+          "required": true
+        },
+        {
+          "key": "subscription",
+          "type": "number",
+          "unit": "EUR/month",
+          "label": {
+            "en": "Monthly subscription (by subscribed power)",
+            "fr": "Abonnement mensuel (selon la puissance)",
+            "de": "Monatliche Grundgebühr (nach Anschlussleistung)",
+            "es": "Abono mensual (según la potencia contratada)"
+          },
+          "description": {
+            "en": "Pre-filled for 6 kVA. EDF grid in EUR/month including taxes: 6 kVA 15.86 · 9 kVA 19.88 · 12 kVA 23.76 · 15 kVA 27.40 · 18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88.",
+            "fr": "Pré-rempli pour 6 kVA. Grille EDF en €/mois TTC : 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+            "de": "Vorbelegt für 6 kVA. EDF-Tabelle in €/Monat brutto: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+            "es": "Prerrellenado para 6 kVA. Tabla EDF en €/mes con impuestos: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88."
+          },
+          "default": 15.86,
+          "required": true
+        }
+      ],
+      "tariff": {
+        "tariff_version": 1,
+        "calendars": ["holidays-fr"],
+        "components": [
+          {
+            "key": "energy",
+            "kind": "consumption",
+            "rules": [
+              {
+                "label": "Jour férié",
+                "when": {
+                  "calendar": {
+                    "holidays-fr": "holiday"
+                  }
+                },
+                "price": "{{input:off_peak_price}}"
+              },
+              {
+                "label": "Week-end",
+                "when": {
+                  "weekdays": ["sat", "sun"]
+                },
+                "price": "{{input:off_peak_price}}"
+              },
+              {
+                "label": "Heures creuses",
+                "when": {
+                  "time": "{{input:off_peak_slots}}"
+                },
+                "price": "{{input:off_peak_price}}"
+              }
+            ],
+            "fallback": {
+              "label": "Heures pleines",
+              "price": "{{input:peak_price}}"
+            }
+          },
+          {
+            "key": "subscription",
+            "kind": "fixed",
+            "amount": "{{input:subscription}}",
+            "per": "month"
+          }
+        ]
+      }
+    },
+    {
+      "key": "edf-zen-weekend-plus",
+      "name": {
+        "en": "EDF Zen Week-End Plus (weekend + chosen day)",
+        "fr": "EDF Zen Week-End Plus (option WE + jour choisi)",
+        "de": "EDF Zen Week-End Plus (Wochenende + gewählter Tag)",
+        "es": "EDF Zen Week-End Plus (fin de semana + día elegido)"
+      },
+      "description": {
+        "en": "Reduced price all weekend, on national public holidays and on the weekday you chose (Monday, Wednesday or Friday).",
+        "fr": "Prix réduit tout le week-end, les jours fériés nationaux et le jour de semaine choisi (lundi, mercredi ou vendredi).",
+        "de": "Günstigerer Preis am ganzen Wochenende, an landesweiten Feiertagen und an deinem gewählten Wochentag (Montag, Mittwoch oder Freitag).",
+        "es": "Precio reducido todo el fin de semana, los festivos nacionales y el día laborable elegido (lunes, miércoles o viernes)."
+      },
+      "country": "FR",
+      "currency": "EUR",
+      "timezone": "Europe/Paris",
+      "pricing_mode": "rules",
+      "version": "2026-09-15",
+      "calendars": ["holidays-fr"],
+      "inputs": [
+        {
+          "key": "chosen_day",
+          "type": "select",
+          "label": {
+            "en": "Chosen day (mon, wed or fri)",
+            "fr": "Jour choisi (mon = lundi, wed = mercredi, fri = vendredi)",
+            "de": "Gewählter Tag (mon = Montag, wed = Mittwoch, fri = Freitag)",
+            "es": "Día elegido (mon = lunes, wed = miércoles, fri = viernes)"
+          },
+          "description": {
+            "en": "The weekday of your contract priced like the weekend, from midnight to midnight.",
+            "fr": "Le jour de semaine de votre contrat facturé comme le week-end, de minuit à minuit.",
+            "de": "Der Wochentag deines Vertrags, der wie das Wochenende abgerechnet wird, von Mitternacht bis Mitternacht.",
+            "es": "El día laborable de su contrato facturado como el fin de semana, de medianoche a medianoche."
+          },
+          "options": ["mon", "wed", "fri"],
+          "default": "mon",
+          "required": true
+        },
+        {
+          "key": "peak_price",
+          "type": "number",
+          "unit": "EUR/kWh",
+          "label": {
+            "en": "Weekday price",
+            "fr": "Prix en semaine",
+            "de": "Preis werktags",
+            "es": "Precio entre semana"
+          },
+          "description": {
+            "en": "EDF price including taxes from 2026-09-15. Correct it if your bill shows another one.",
+            "fr": "Prix EDF TTC au 2026-09-15. Corrigez-le si votre facture en indique un autre.",
+            "de": "EDF-Bruttopreis ab 2026-09-15. Korrigiere ihn, wenn deine Rechnung einen anderen zeigt.",
+            "es": "Precio EDF con impuestos desde el 2026-09-15. Corríjalo si su factura indica otro."
+          },
+          "default": 0.2259,
+          "required": true
+        },
+        {
+          "key": "off_peak_price",
+          "type": "number",
+          "unit": "EUR/kWh",
+          "label": {
+            "en": "Weekend and holiday price",
+            "fr": "Prix week-end et jours fériés",
+            "de": "Preis Wochenende und Feiertage",
+            "es": "Precio fin de semana y festivos"
+          },
+          "description": {
+            "en": "EDF price including taxes from 2026-09-15, the same in every reduced period of the option.",
+            "fr": "Prix EDF TTC au 2026-09-15, le même pour toutes les périodes réduites de l'option.",
+            "de": "EDF-Bruttopreis ab 2026-09-15, gleich in allen günstigeren Zeiten der Option.",
+            "es": "Precio EDF con impuestos desde el 2026-09-15, el mismo en todos los periodos reducidos de la opción."
+          },
+          "default": 0.1691,
+          "required": true
+        },
+        {
+          "key": "subscription",
+          "type": "number",
+          "unit": "EUR/month",
+          "label": {
+            "en": "Monthly subscription (by subscribed power)",
+            "fr": "Abonnement mensuel (selon la puissance)",
+            "de": "Monatliche Grundgebühr (nach Anschlussleistung)",
+            "es": "Abono mensual (según la potencia contratada)"
+          },
+          "description": {
+            "en": "Pre-filled for 6 kVA. EDF grid in EUR/month including taxes: 6 kVA 15.86 · 9 kVA 19.88 · 12 kVA 23.76 · 15 kVA 27.40 · 18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88.",
+            "fr": "Pré-rempli pour 6 kVA. Grille EDF en €/mois TTC : 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+            "de": "Vorbelegt für 6 kVA. EDF-Tabelle in €/Monat brutto: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+            "es": "Prerrellenado para 6 kVA. Tabla EDF en €/mes con impuestos: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88."
+          },
+          "default": 15.86,
+          "required": true
+        }
+      ],
+      "tariff": {
+        "tariff_version": 1,
+        "calendars": ["holidays-fr"],
+        "components": [
+          {
+            "key": "energy",
+            "kind": "consumption",
+            "rules": [
+              {
+                "label": "Jour férié",
+                "when": {
+                  "calendar": {
+                    "holidays-fr": "holiday"
+                  }
+                },
+                "price": "{{input:off_peak_price}}"
+              },
+              {
+                "label": "Week-end",
+                "when": {
+                  "weekdays": ["sat", "sun"]
+                },
+                "price": "{{input:off_peak_price}}"
+              },
+              {
+                "label": "Jour choisi",
+                "when": {
+                  "weekdays": ["{{input:chosen_day}}"]
+                },
+                "price": "{{input:off_peak_price}}"
+              }
+            ],
+            "fallback": {
+              "label": "Semaine",
+              "price": "{{input:peak_price}}"
+            }
+          },
+          {
+            "key": "subscription",
+            "kind": "fixed",
+            "amount": "{{input:subscription}}",
+            "per": "month"
+          }
+        ]
+      }
+    },
+    {
+      "key": "edf-zen-weekend-plus-off-peak",
+      "name": {
+        "en": "EDF Zen Week-End Plus (off-peak + weekend + day)",
+        "fr": "EDF Zen Week-End Plus (option HC + WE + jour choisi)",
+        "de": "EDF Zen Week-End Plus (Nebenzeiten + WE + Tag)",
+        "es": "EDF Zen Week-End Plus (horas valle + FDS + día)"
+      },
+      "description": {
+        "en": "Off-peak price all weekend, on national public holidays, on the weekday you chose and during your Enedis off-peak hours.",
+        "fr": "Prix heures creuses tout le week-end, les jours fériés nationaux, le jour choisi et pendant vos heures creuses Enedis.",
+        "de": "Nebenzeitpreis am ganzen Wochenende, an landesweiten Feiertagen, an deinem gewählten Tag und während deiner Enedis-Nebenzeiten.",
+        "es": "Precio de horas valle todo el fin de semana, los festivos nacionales, el día elegido y durante sus horas valle Enedis."
+      },
+      "country": "FR",
+      "currency": "EUR",
+      "timezone": "Europe/Paris",
+      "pricing_mode": "rules",
+      "version": "2026-09-15",
+      "calendars": ["holidays-fr"],
+      "inputs": [
+        {
+          "key": "chosen_day",
+          "type": "select",
+          "label": {
+            "en": "Chosen day (mon, wed or fri)",
+            "fr": "Jour choisi (mon = lundi, wed = mercredi, fri = vendredi)",
+            "de": "Gewählter Tag (mon = Montag, wed = Mittwoch, fri = Freitag)",
+            "es": "Día elegido (mon = lunes, wed = miércoles, fri = viernes)"
+          },
+          "description": {
+            "en": "The weekday of your contract priced like the weekend, from midnight to midnight.",
+            "fr": "Le jour de semaine de votre contrat facturé comme le week-end, de minuit à minuit.",
+            "de": "Der Wochentag deines Vertrags, der wie das Wochenende abgerechnet wird, von Mitternacht bis Mitternacht.",
+            "es": "El día laborable de su contrato facturado como el fin de semana, de medianoche a medianoche."
+          },
+          "options": ["mon", "wed", "fri"],
+          "default": "mon",
+          "required": true
+        },
+        {
+          "key": "off_peak_slots",
+          "type": "time_intervals",
+          "label": {
+            "en": "Enedis off-peak hours (weekdays)",
+            "fr": "Heures creuses Enedis (en semaine)",
+            "de": "Enedis-Nebenzeiten (werktags)",
+            "es": "Horas valle Enedis (entre semana)"
+          },
+          "description": {
+            "en": "Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.",
+            "fr": "Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.",
+            "de": "Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.",
+            "es": "Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30."
+          },
+          "default": [
+            ["04:00", "08:00"],
+            ["12:30", "16:30"]
+          ],
+          "required": true
+        },
+        {
+          "key": "peak_price",
+          "type": "number",
+          "unit": "EUR/kWh",
+          "label": {
+            "en": "Peak hours price",
+            "fr": "Prix heures pleines",
+            "de": "Preis Hauptzeit",
+            "es": "Precio horas punta"
+          },
+          "description": {
+            "en": "EDF price including taxes from 2026-09-15. Correct it if your bill shows another one.",
+            "fr": "Prix EDF TTC au 2026-09-15. Corrigez-le si votre facture en indique un autre.",
+            "de": "EDF-Bruttopreis ab 2026-09-15. Korrigiere ihn, wenn deine Rechnung einen anderen zeigt.",
+            "es": "Precio EDF con impuestos desde el 2026-09-15. Corríjalo si su factura indica otro."
+          },
+          "default": 0.2314,
+          "required": true
+        },
+        {
+          "key": "off_peak_price",
+          "type": "number",
+          "unit": "EUR/kWh",
+          "label": {
+            "en": "Off-peak, weekend and holiday price",
+            "fr": "Prix heures creuses, week-end et fériés",
+            "de": "Preis Nebenzeit, Wochenende und Feiertage",
+            "es": "Precio horas valle, fin de semana y festivos"
+          },
+          "description": {
+            "en": "EDF price including taxes from 2026-09-15, the same in every reduced period of the option.",
+            "fr": "Prix EDF TTC au 2026-09-15, le même pour toutes les périodes réduites de l'option.",
+            "de": "EDF-Bruttopreis ab 2026-09-15, gleich in allen günstigeren Zeiten der Option.",
+            "es": "Precio EDF con impuestos desde el 2026-09-15, el mismo en todos los periodos reducidos de la opción."
+          },
+          "default": 0.1731,
+          "required": true
+        },
+        {
+          "key": "subscription",
+          "type": "number",
+          "unit": "EUR/month",
+          "label": {
+            "en": "Monthly subscription (by subscribed power)",
+            "fr": "Abonnement mensuel (selon la puissance)",
+            "de": "Monatliche Grundgebühr (nach Anschlussleistung)",
+            "es": "Abono mensual (según la potencia contratada)"
+          },
+          "description": {
+            "en": "Pre-filled for 6 kVA. EDF grid in EUR/month including taxes: 6 kVA 15.86 · 9 kVA 19.88 · 12 kVA 23.76 · 15 kVA 27.40 · 18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88.",
+            "fr": "Pré-rempli pour 6 kVA. Grille EDF en €/mois TTC : 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+            "de": "Vorbelegt für 6 kVA. EDF-Tabelle in €/Monat brutto: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88.",
+            "es": "Prerrellenado para 6 kVA. Tabla EDF en €/mes con impuestos: 6 kVA 15,86 · 9 kVA 19,88 · 12 kVA 23,76 · 15 kVA 27,40 · 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88."
+          },
+          "default": 15.86,
+          "required": true
+        }
+      ],
+      "tariff": {
+        "tariff_version": 1,
+        "calendars": ["holidays-fr"],
+        "components": [
+          {
+            "key": "energy",
+            "kind": "consumption",
+            "rules": [
+              {
+                "label": "Jour férié",
+                "when": {
+                  "calendar": {
+                    "holidays-fr": "holiday"
+                  }
+                },
+                "price": "{{input:off_peak_price}}"
+              },
+              {
+                "label": "Week-end",
+                "when": {
+                  "weekdays": ["sat", "sun"]
+                },
+                "price": "{{input:off_peak_price}}"
+              },
+              {
+                "label": "Jour choisi",
+                "when": {
+                  "weekdays": ["{{input:chosen_day}}"]
+                },
+                "price": "{{input:off_peak_price}}"
+              },
+              {
+                "label": "Heures creuses",
+                "when": {
+                  "time": "{{input:off_peak_slots}}"
+                },
+                "price": "{{input:off_peak_price}}"
+              }
+            ],
+            "fallback": {
+              "label": "Heures pleines",
+              "price": "{{input:peak_price}}"
+            }
+          },
+          {
+            "key": "subscription",
+            "kind": "fixed",
+            "amount": "{{input:subscription}}",
+            "per": "month"
+          }
+        ]
+      }
+    }
+  ]
+}

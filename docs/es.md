@@ -7,7 +7,7 @@ asistente de contratos de Gladys, para que cada kilovatio hora se cuente al prec
 - **todo el fin de semana** al precio reducido, del sábado a las 0:00 al domingo a las 24:00;
 - los **festivos nacionales** al precio reducido, calculados sin conexión por la integración;
 - sus **horas valle Enedis** los demás días, con las opciones de horas valle (8 horas al día, las de su
-  factura);
+  factura), unas de invierno y otras de verano desde la reforma de las horas valle;
 - el **día elegido** (lunes, miércoles o viernes) de la oferta Plus;
 - el **abono mensual** de su potencia contratada.
 
@@ -38,7 +38,8 @@ salvo el idioma de los textos de escenas.
 1. Abra **Integraciones → Supervisión de energía → Contratos** y cree un contrato.
 2. Elija una de las cuatro plantillas **EDF Zen Week-End** (ver abajo), luego su contador eléctrico y la
    fecha de inicio de su contrato.
-3. Compruebe los valores prerrellenados con su factura: horas valle, precios, abono. Guarde.
+3. Introduzca sus horas valle de invierno y de verano, y compruebe los precios y el abono con su factura.
+   Guarde.
 
 Gladys cuenta entonces cada media hora de consumo con este contrato, desde su fecha de inicio, pasado
 incluido.
@@ -72,9 +73,31 @@ impuestos): 3 kVA 12,13 (solo opción Week-End) · 6 kVA 15,86 · 9 kVA 19,88 ·
 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88. La plantilla viene prerrellenada para 6 kVA:
 indique la suya.
 
-Las **horas valle** las fija Enedis para cada vivienda: figuran en su factura y en enedis.fr. La plantilla
-viene prerrellenada con 04:00-08:00 y 12:30-16:30; la mayoría de las viviendas tienen horas nocturnas (por
-ejemplo 22:00-06:00): seleccione las suyas en la cuadrícula.
+### Horas valle: invierno y verano
+
+Las **horas valle** las fija Enedis para cada vivienda. Con la reforma de las horas valle (2025-2027), cada
+vivienda recibe dos juegos de franjas: uno para el **invierno** (del 1 de noviembre al 31 de marzo) y otro
+para el **verano** (del 1 de abril al 31 de octubre). Por eso las plantillas con horas valle tienen dos
+campos. Sus horas figuran en su factura, en su cuenta Enedis (enedis.fr) y en la carta que Enedis envía
+antes del cambio. Si su vivienda aún no tiene horas estacionales, introduzca las mismas horas en ambos
+campos.
+
+Los dos campos empiezan vacíos, y Gladys se niega a guardar el contrato mientras uno de ellos esté vacío.
+Hasta la versión 1.0.1 venían prerrellenados con 04:00-08:00 y 12:30-16:30, las horas de solo algunas
+viviendas: compruebe las de un contrato creado antes.
+
+La cuadrícula del asistente avanza por medias horas, mientras que las horas de la reforma suelen caer en el
+minuto (por ejemplo 01:22-06:52). Redondee cada inicio y cada fin a la media hora **siguiente**:
+01:22-06:52 pasa a ser 01:30-07:00. Gladys cuenta el consumo por medias horas, cada una al precio de su
+primer minuto: el coste calculado es el mismo que con las horas exactas. Solo los disparadores de escena
+saltan entonces a la media hora (01:30) y no en el minuto en que cambia su contador (01:22).
+
+### Contrato creado antes de la versión 1.1.0
+
+Sigue funcionando tal cual, con las mismas horas todo el año: Gladys conserva la tarifa guardada al crearlo,
+y la integración sigue leyendo su antiguo campo de horas valle. Cuando sus horas estacionales entren en
+vigor (la fecha figura en la carta de Enedis), fije el fin del antiguo contrato en la víspera y cree uno
+nuevo desde la plantilla actualizada, con sus horas de invierno y de verano.
 
 ### Idioma
 
@@ -91,7 +114,7 @@ El contrato lo calcula la propia Gladys, con las reglas de la plantilla:
    Alsacia-Mosela, no tienen precio reducido en EDF) es reducido de 0:00 a 24:00;
 2. el **fin de semana** es reducido del sábado a las 0:00 al domingo a las 24:00;
 3. el **día elegido** de la oferta Plus es reducido de 0:00 a 24:00;
-4. las **horas valle** son reducidas los demás días;
+4. las **horas valle** de la temporada (invierno o verano) son reducidas los demás días;
 5. el resto del tiempo se aplica el precio completo.
 
 La integración publica los festivos en el calendario `holidays-fr` de Gladys, una semana antes
@@ -151,8 +174,10 @@ partir de la fecha del cambio. Su factura prevalece siempre sobre los valores pr
   registros, «Published … public holiday(s)» lista las publicaciones.
 - **«Calendario de festivos: lo provee otra integración»** en el widget: otra integración ya proporciona
   `holidays-fr`; las plantillas lo leen. Los disparadores y el widget siguen los festivos nacionales calculados por esta integración: si el otro calendario tiene otros días, pueden no coincidir con el precio.
-- **Horas valle incorrectas**: modifique el contrato en Supervisión de energía → Contratos. La integración
-  vuelve a leer los contratos en 10 minutos.
+- **Horas valle incorrectas**: fije el fin del contrato en la víspera y cree uno nuevo desde la plantilla,
+  con las horas correctas. Modificar un contrato existente abre su tarifa en JSON: las horas cambiadas allí
+  se facturan, pero los disparadores y el widget leen los campos de la plantilla y no las ven. La
+  integración vuelve a leer los contratos en 10 minutos.
 - **Ningún evento de escena**: la integración no envía ninguno cuando detecta un cambio con más de 15
   minutos de retraso (Gladys inaccesible, equipo en reposo).
 
@@ -162,7 +187,9 @@ partir de la fecha del cambio. Su factura prevalece siempre sobre los valores pr
   antiguo puede tener otros.
 - El recargo para autoproductores (9,84 € sin impuestos al año) no se incluye.
 - La opción Flex no está soportada.
-- Las horas valle siguen la cuadrícula de 30 minutos del asistente de Gladys.
+- Las horas valle siguen la cuadrícula de 30 minutos del asistente de Gladys: una hora en el minuto (01:22)
+  se redondea a la media hora siguiente, con el mismo coste calculado, pero los disparadores saltan a la
+  media hora.
 - Cambiar el día elegido (dos veces por año contractual) supone un nuevo contrato a partir de la fecha del
   cambio.
 - Sin relación con EDF ni con Enedis. «EDF» y «Zen Week-End» son marcas de sus propietarios.

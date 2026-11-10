@@ -10,6 +10,18 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Changed
+
+- Off-peak options: two off-peak hours fields, winter (1 November to 31 March)
+  and summer (1 April to 31 October), for the seasonal hours of the Enedis
+  off-peak hours reform. A home not switched yet enters the same hours in both.
+- The off-peak hours are no longer pre-filled with 04:00-08:00 and
+  12:30-16:30: the fields start empty, with where to read your hours (bill,
+  Enedis account, letter of the reform) and how to round hours on the minute
+  to the half-hour grid of the wizard.
+- Contracts created before keep working unchanged, with the same hours all
+  year round; the documentation explains how to move to seasonal hours.
+
 ## [1.0.1] - 2026-10-22
 
 ### Security

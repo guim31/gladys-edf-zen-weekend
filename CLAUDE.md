@@ -270,5 +270,24 @@ Flex (jours « sobriété » annoncés par EDF) non couverte.
 - `getEnergyContracts()` ne rend ni nom ni compteur : le widget décrit le contrat actif le plus
   récent ; plusieurs contrats aux mêmes horaires ne déclenchent qu'une fois.
 
+**Heures creuses saisonnières (1.1.0, 10/11/2026)**
+
+- Réforme Enedis 2025-2027 : deux saisons, hiver 01/11 → 31/03 et été 01/04 → 31/10 (`SEASONS` de
+  `src/templates.js`), une règle « Heures creuses » `season` + `time` par saison. Les saisons se lisent
+  sur la date locale du fuseau du contrat, comme le moteur.
+- **Le formulaire du cœur (`HourSlotGrid`) n'a qu'une grille de 48 demi-heures** (vérifié en 5.3.2) : une
+  plage 01:22 est impossible à saisir, et un défaut hors grille serait effacé au premier clic. Mais le moteur
+  facture chaque demi-heure de consommation à sa **première minute** : arrondir début et fin à la demi-heure
+  **suivante** donne exactement le même coût. Seuls nos déclencheurs à la minute en pâtissent.
+- **Pas de défaut** pour les heures creuses : le défaut 04:00-08:00 / 12:30-16:30 de la 1.0 a été gardé à
+  tort. Un champ vide donne `time: []`, refusé par le cœur (`minItems: 1`) à l'enregistrement.
+- **Compatibilité** : le cœur garde le tarif substitué du contrat, et **modifier un contrat existant
+  rouvre son tarif en JSON**, sans les champs du modèle : un nouveau modèle ne touche jamais un ancien
+  contrat. `src/schedule.js` lit encore `off_peak_slots` (1.0) pour les deux saisons quand aucun champ
+  saisonnier n'existe, et garde la même `signature` quand les deux saisons sont identiques (clé des
+  événements déjà envoyés dans `/data`). `test/fixtures/energy-contracts-1.0.1.json` fige les anciens tarifs.
+- Le conteneur ne voit que les `inputs` du contrat, jamais son tarif (`getEnergyContracts()`) : des heures
+  changées à la main dans le JSON sont facturées mais invisibles des déclencheurs et du widget.
+
 **Mettre à jour les prix** : nouveau fichier `src/tariffs/edf-<date>.json`, `TARIFF` dans
 `src/templates.js`, `npm run templates`, `npm test`. La `version` des modèles suit la date.

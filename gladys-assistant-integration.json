@@ -460,7 +460,7 @@
         "currency": "EUR",
         "timezone": "Europe/Paris",
         "pricing_mode": "rules",
-        "version": "2026-09-15",
+        "version": "2026-09-15.2",
         "calendars": ["holidays-fr"],
         "inputs": [
           {
@@ -578,28 +578,41 @@
         "currency": "EUR",
         "timezone": "Europe/Paris",
         "pricing_mode": "rules",
-        "version": "2026-09-15",
+        "version": "2026-09-15.2",
         "calendars": ["holidays-fr"],
         "inputs": [
           {
-            "key": "off_peak_slots",
+            "key": "off_peak_slots_winter",
             "type": "time_intervals",
             "label": {
-              "en": "Enedis off-peak hours (weekdays)",
-              "fr": "Heures creuses Enedis (en semaine)",
-              "de": "Enedis-Nebenzeiten (werktags)",
-              "es": "Horas valle Enedis (entre semana)"
+              "en": "Enedis off-peak hours, November to March",
+              "fr": "Heures creuses Enedis, novembre à mars",
+              "de": "Enedis-Nebenzeiten, November bis März",
+              "es": "Horas valle Enedis, de noviembre a marzo"
             },
             "description": {
-              "en": "Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.",
-              "fr": "Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.",
-              "de": "Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.",
-              "es": "Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30."
+              "en": "Weekdays, 1 Nov to 31 Mar. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in both fields. Half-hour grid: round up (01:22 → 01:30), Gladys bills by half-hour.",
+              "fr": "En semaine, du 1/11 au 31/03. Voir votre facture, votre compte Enedis ou le courrier de la réforme. Sans heures saisonnières, mêmes heures dans les deux champs. Grille par demi-heure : arrondir à la suivante (01:22 → 01:30), Gladys facture par demi-heure.",
+              "de": "Werktags, 1.11. bis 31.3. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten in beiden Feldern. Halbstundenraster: aufrunden (01:22 → 01:30), Gladys rechnet halbstündlich ab.",
+              "es": "Entre semana, del 1/11 al 31/3. En su factura, su cuenta Enedis o la carta de la reforma. Sin horas estacionales: mismas horas en ambos campos. Medias horas: redondee hacia arriba (01:22 → 01:30), Gladys factura por media hora."
             },
-            "default": [
-              ["04:00", "08:00"],
-              ["12:30", "16:30"]
-            ],
+            "required": true
+          },
+          {
+            "key": "off_peak_slots_summer",
+            "type": "time_intervals",
+            "label": {
+              "en": "Enedis off-peak hours, April to October",
+              "fr": "Heures creuses Enedis, avril à octobre",
+              "de": "Enedis-Nebenzeiten, April bis Oktober",
+              "es": "Horas valle Enedis, de abril a octubre"
+            },
+            "description": {
+              "en": "Weekdays, 1 Apr to 31 Oct. Same sources and same rounding as the November to March hours; the same hours if your home has not switched to seasonal off-peak hours yet.",
+              "fr": "En semaine, du 1/04 au 31/10. Mêmes sources et même arrondi que pour novembre à mars ; les mêmes heures si votre logement n’est pas encore passé aux heures creuses saisonnières.",
+              "de": "Werktags, 1.4. bis 31.10. Gleiche Quellen und gleiche Rundung wie für November bis März; dieselben Zeiten, wenn deine Wohnung noch keine saisonalen Nebenzeiten hat.",
+              "es": "Entre semana, del 1/4 al 31/10. Mismas fuentes y mismo redondeo que de noviembre a marzo; las mismas horas si su vivienda aún no tiene horas valle estacionales."
+            },
             "required": true
           },
           {
@@ -687,7 +700,22 @@
                 {
                   "label": "Heures creuses",
                   "when": {
-                    "time": "{{input:off_peak_slots}}"
+                    "season": {
+                      "from": "11-01",
+                      "to": "03-31"
+                    },
+                    "time": "{{input:off_peak_slots_winter}}"
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Heures creuses",
+                  "when": {
+                    "season": {
+                      "from": "04-01",
+                      "to": "10-31"
+                    },
+                    "time": "{{input:off_peak_slots_summer}}"
                   },
                   "price": "{{input:off_peak_price}}"
                 }
@@ -724,7 +752,7 @@
         "currency": "EUR",
         "timezone": "Europe/Paris",
         "pricing_mode": "rules",
-        "version": "2026-09-15",
+        "version": "2026-09-15.2",
         "calendars": ["holidays-fr"],
         "inputs": [
           {
@@ -868,7 +896,7 @@
         "currency": "EUR",
         "timezone": "Europe/Paris",
         "pricing_mode": "rules",
-        "version": "2026-09-15",
+        "version": "2026-09-15.2",
         "calendars": ["holidays-fr"],
         "inputs": [
           {
@@ -891,24 +919,37 @@
             "required": true
           },
           {
-            "key": "off_peak_slots",
+            "key": "off_peak_slots_winter",
             "type": "time_intervals",
             "label": {
-              "en": "Enedis off-peak hours (weekdays)",
-              "fr": "Heures creuses Enedis (en semaine)",
-              "de": "Enedis-Nebenzeiten (werktags)",
-              "es": "Horas valle Enedis (entre semana)"
+              "en": "Enedis off-peak hours, November to March",
+              "fr": "Heures creuses Enedis, novembre à mars",
+              "de": "Enedis-Nebenzeiten, November bis März",
+              "es": "Horas valle Enedis, de noviembre a marzo"
             },
             "description": {
-              "en": "Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.",
-              "fr": "Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.",
-              "de": "Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.",
-              "es": "Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30."
+              "en": "Weekdays, 1 Nov to 31 Mar. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in both fields. Half-hour grid: round up (01:22 → 01:30), Gladys bills by half-hour.",
+              "fr": "En semaine, du 1/11 au 31/03. Voir votre facture, votre compte Enedis ou le courrier de la réforme. Sans heures saisonnières, mêmes heures dans les deux champs. Grille par demi-heure : arrondir à la suivante (01:22 → 01:30), Gladys facture par demi-heure.",
+              "de": "Werktags, 1.11. bis 31.3. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten in beiden Feldern. Halbstundenraster: aufrunden (01:22 → 01:30), Gladys rechnet halbstündlich ab.",
+              "es": "Entre semana, del 1/11 al 31/3. En su factura, su cuenta Enedis o la carta de la reforma. Sin horas estacionales: mismas horas en ambos campos. Medias horas: redondee hacia arriba (01:22 → 01:30), Gladys factura por media hora."
             },
-            "default": [
-              ["04:00", "08:00"],
-              ["12:30", "16:30"]
-            ],
+            "required": true
+          },
+          {
+            "key": "off_peak_slots_summer",
+            "type": "time_intervals",
+            "label": {
+              "en": "Enedis off-peak hours, April to October",
+              "fr": "Heures creuses Enedis, avril à octobre",
+              "de": "Enedis-Nebenzeiten, April bis Oktober",
+              "es": "Horas valle Enedis, de abril a octubre"
+            },
+            "description": {
+              "en": "Weekdays, 1 Apr to 31 Oct. Same sources and same rounding as the November to March hours; the same hours if your home has not switched to seasonal off-peak hours yet.",
+              "fr": "En semaine, du 1/04 au 31/10. Mêmes sources et même arrondi que pour novembre à mars ; les mêmes heures si votre logement n’est pas encore passé aux heures creuses saisonnières.",
+              "de": "Werktags, 1.4. bis 31.10. Gleiche Quellen und gleiche Rundung wie für November bis März; dieselben Zeiten, wenn deine Wohnung noch keine saisonalen Nebenzeiten hat.",
+              "es": "Entre semana, del 1/4 al 31/10. Mismas fuentes y mismo redondeo que de noviembre a marzo; las mismas horas si su vivienda aún no tiene horas valle estacionales."
+            },
             "required": true
           },
           {
@@ -1003,7 +1044,22 @@
                 {
                   "label": "Heures creuses",
                   "when": {
-                    "time": "{{input:off_peak_slots}}"
+                    "season": {
+                      "from": "11-01",
+                      "to": "03-31"
+                    },
+                    "time": "{{input:off_peak_slots_winter}}"
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Heures creuses",
+                  "when": {
+                    "season": {
+                      "from": "04-01",
+                      "to": "10-31"
+                    },
+                    "time": "{{input:off_peak_slots_summer}}"
                   },
                   "price": "{{input:off_peak_price}}"
                 }

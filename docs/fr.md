@@ -7,7 +7,7 @@ l'assistant de contrat de Gladys, pour que chaque kilowattheure soit compté au 
 - **tout le week-end** au prix réduit, du samedi 0 h au dimanche 24 h ;
 - les **jours fériés nationaux** au prix réduit, calculés hors ligne par l'intégration ;
 - vos **heures creuses Enedis** les autres jours, avec les options heures creuses (8 h par jour, celles de
-  votre facture) ;
+  votre facture), une plage d'hiver et une d'été depuis la réforme des heures creuses ;
 - le **jour choisi** (lundi, mercredi ou vendredi) de l'offre Plus ;
 - l'**abonnement mensuel** de votre puissance souscrite.
 
@@ -37,7 +37,8 @@ langue des textes des scènes.
 1. Ouvrez **Intégrations → Suivi de l'énergie → Contrats** et créez un contrat.
 2. Choisissez l'un des quatre modèles **EDF Zen Week-End** (voir ci-dessous), puis votre compteur
    électrique et la date de début de votre contrat.
-3. Vérifiez les valeurs pré-remplies avec votre facture : heures creuses, prix, abonnement. Enregistrez.
+3. Saisissez vos heures creuses d'hiver et d'été, puis vérifiez les prix et l'abonnement avec votre facture.
+   Enregistrez.
 
 Gladys compte alors chaque demi-heure de consommation avec ce contrat, depuis sa date de début, passé
 compris.
@@ -71,9 +72,31 @@ L'abonnement mensuel dépend de votre puissance souscrite, le même pour toutes 
 18 kVA 31,14 · 24 kVA 39,14 · 30 kVA 46,47 · 36 kVA 53,88. Le modèle est pré-rempli pour 6 kVA : saisissez
 le vôtre.
 
-Les **heures creuses** sont fixées par Enedis pour chaque logement : elles figurent sur votre facture et
-sur enedis.fr. Le modèle est pré-rempli avec 4 h-8 h et 12 h 30-16 h 30 ; la plupart des logements ont des
-heures de nuit (par exemple 22 h-6 h) : sélectionnez les vôtres dans la grille.
+### Heures creuses : hiver et été
+
+Les **heures creuses** sont fixées par Enedis pour chaque logement. Avec la réforme des heures creuses
+(2025-2027), chaque logement reçoit deux jeux de plages : un pour l'**hiver** (du 1er novembre au 31 mars)
+et un pour l'**été** (du 1er avril au 31 octobre). Les modèles avec heures creuses ont donc deux champs.
+Vos heures figurent sur votre facture, dans votre compte Enedis (enedis.fr) et dans le courrier qu'Enedis
+envoie avant le changement. Si votre logement n'est pas encore passé aux heures saisonnières, saisissez
+les mêmes heures dans les deux champs.
+
+Les deux champs sont vides au départ, et Gladys refuse d'enregistrer le contrat tant que l'un d'eux reste
+vide. Jusqu'à la version 1.0.1, ils étaient pré-remplis avec 4 h-8 h et 12 h 30-16 h 30, qui ne sont les
+heures que de certains logements : vérifiez celles d'un contrat créé avant.
+
+La grille de l'assistant avance par demi-heure, alors que les heures de la réforme tombent souvent à la
+minute (par exemple 01:22-06:52). Arrondissez chaque début et chaque fin à la demi-heure **suivante** :
+01:22-06:52 devient 01:30-07:00. Gladys compte la consommation par demi-heure, chacune au prix de sa
+première minute : le coût calculé est le même qu'avec les heures exactes. Seuls les déclencheurs de scène
+partent alors à la demi-heure (01:30) et non à la minute où bascule votre compteur (01:22).
+
+### Contrat créé avant la version 1.1.0
+
+Il continue de fonctionner tel quel, avec les mêmes heures toute l'année : Gladys garde le tarif enregistré
+à sa création, et l'intégration relit son ancien champ d'heures creuses. Quand vos heures saisonnières
+entrent en vigueur (la date est dans le courrier d'Enedis), fixez la fin de l'ancien contrat à la veille et
+créez-en un nouveau depuis le modèle à jour, avec vos heures d'hiver et d'été.
 
 ### Langue
 
@@ -90,7 +113,7 @@ Le contrat est calculé par Gladys elle-même, avec les règles du modèle :
    l'Alsace-Moselle seulement, ne sont pas réduits par EDF) est réduit de 0 h à 24 h ;
 2. le **week-end** est réduit du samedi 0 h au dimanche 24 h ;
 3. le **jour choisi** de l'offre Plus est réduit de 0 h à 24 h ;
-4. les **heures creuses** sont réduites les autres jours ;
+4. les **heures creuses** de la saison (hiver ou été) sont réduites les autres jours ;
 5. le reste du temps est au plein tarif.
 
 L'intégration publie les jours fériés dans le calendrier `holidays-fr` de Gladys, environ une semaine à
@@ -152,8 +175,10 @@ date du changement. Votre facture fait toujours foi face aux valeurs pré-rempli
   journaux, « Published … public holiday(s) » liste les publications.
 - **« Calendrier des fériés : fourni par une autre intégration »** dans le widget : une autre intégration
   fournit déjà `holidays-fr` ; les modèles le lisent. Les déclencheurs et le widget suivent toujours les fériés nationaux calculés par cette intégration : si l'autre calendrier a d'autres jours, ils peuvent différer du prix.
-- **Heures creuses fausses** : modifiez le contrat dans Suivi de l'énergie → Contrats. L'intégration relit les
-  contrats dans les 10 minutes.
+- **Heures creuses fausses** : fixez la fin du contrat à la veille et créez-en un nouveau depuis le modèle,
+  avec les bonnes heures. Modifier un contrat existant ouvre son tarif en JSON : des heures changées là sont
+  bien facturées, mais les déclencheurs et le widget lisent les champs du modèle et ne les voient pas.
+  L'intégration relit les contrats dans les 10 minutes.
 - **Pas d'événement de scène** : l'intégration n'en envoie pas quand elle remarque un changement avec plus
   de 15 minutes de retard (Gladys injoignable, machine en veille).
 
@@ -163,7 +188,9 @@ date du changement. Votre facture fait toujours foi face aux valeurs pré-rempli
   peut en avoir d'autres.
 - La majoration des auto-producteurs (9,84 € HT par an) n'est pas comptée.
 - L'option Flex n'est pas prise en charge.
-- Les heures creuses suivent la grille de 30 minutes de l'assistant de Gladys.
+- Les heures creuses suivent la grille de 30 minutes de l'assistant de Gladys : une heure à la minute
+  (01:22) s'arrondit à la demi-heure suivante, sans changer le coût calculé, mais les déclencheurs partent
+  à la demi-heure.
 - Changer de jour choisi (deux fois par année contractuelle) revient à créer un nouveau contrat à la date du
   changement.
 - Sans lien avec EDF ni Enedis. « EDF » et « Zen Week-End » sont des marques de leurs propriétaires.

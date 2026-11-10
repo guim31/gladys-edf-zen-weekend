@@ -29,11 +29,30 @@ export const HOLIDAY_CALENDAR = {
 };
 export const HOLIDAY_VALUE = 'holiday';
 
-/** Guilhem's Enedis off-peak hours, the default of the off-peak options. */
-export const DEFAULT_OFF_PEAK_SLOTS = [
-  ['04:00', '08:00'],
-  ['12:30', '16:30'],
+/**
+ * Revision of the template structure, appended to the price grid date in the
+ * template `version`. 2: off-peak hours by season (1.1.0).
+ */
+export const TEMPLATE_REVISION = 2;
+
+/**
+ * The two seasons of the Enedis off-peak hours reform (2025-2027): each home
+ * gets one set of slots from 1 November to 31 March and another from 1 April
+ * to 31 October. Inclusive bounds, like the `season` condition of the core;
+ * winter crosses 1 January. Input keys are stored in the users' contracts:
+ * never rename one.
+ */
+export const SEASONS = [
+  { key: 'winter', input: 'off_peak_slots_winter', from: '11-01', to: '03-31' },
+  { key: 'summer', input: 'off_peak_slots_summer', from: '04-01', to: '10-31' },
 ];
+
+/**
+ * The single input of the templates before 1.1.0, same hours all year round.
+ * The contracts created with it keep their stored tariff in the core; the
+ * container still reads it (src/schedule.js).
+ */
+export const LEGACY_OFF_PEAK_INPUT = 'off_peak_slots';
 
 export const CHOSEN_DAYS = ['mon', 'wed', 'fri'];
 
@@ -172,24 +191,45 @@ function inputsOf(option) {
     });
   }
   if (option.off_peak_hours) {
-    inputs.push({
-      key: 'off_peak_slots',
-      type: 'time_intervals',
-      label: {
-        en: 'Enedis off-peak hours (weekdays)',
-        fr: 'Heures creuses Enedis (en semaine)',
-        de: 'Enedis-Nebenzeiten (werktags)',
-        es: 'Horas valle Enedis (entre semana)',
+    // No default on purpose: the 1.0 default (04:00-08:00, 12:30-16:30) left
+    // users with off-peak hours that were not theirs. The wizard starts with
+    // an empty grid, and the core refuses a contract with an empty one.
+    inputs.push(
+      {
+        key: SEASONS[0].input,
+        type: 'time_intervals',
+        label: {
+          en: 'Enedis off-peak hours, November to March',
+          fr: 'Heures creuses Enedis, novembre à mars',
+          de: 'Enedis-Nebenzeiten, November bis März',
+          es: 'Horas valle Enedis, de noviembre a marzo',
+        },
+        description: {
+          en: 'Weekdays, 1 Nov to 31 Mar. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in both fields. Half-hour grid: round up (01:22 → 01:30), Gladys bills by half-hour.',
+          fr: 'En semaine, du 1/11 au 31/03. Voir votre facture, votre compte Enedis ou le courrier de la réforme. Sans heures saisonnières, mêmes heures dans les deux champs. Grille par demi-heure : arrondir à la suivante (01:22 → 01:30), Gladys facture par demi-heure.',
+          de: 'Werktags, 1.11. bis 31.3. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten in beiden Feldern. Halbstundenraster: aufrunden (01:22 → 01:30), Gladys rechnet halbstündlich ab.',
+          es: 'Entre semana, del 1/11 al 31/3. En su factura, su cuenta Enedis o la carta de la reforma. Sin horas estacionales: mismas horas en ambos campos. Medias horas: redondee hacia arriba (01:22 → 01:30), Gladys factura por media hora.',
+        },
+        required: true,
       },
-      description: {
-        en: 'Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.',
-        fr: 'Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.',
-        de: 'Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.',
-        es: 'Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30.',
+      {
+        key: SEASONS[1].input,
+        type: 'time_intervals',
+        label: {
+          en: 'Enedis off-peak hours, April to October',
+          fr: 'Heures creuses Enedis, avril à octobre',
+          de: 'Enedis-Nebenzeiten, April bis Oktober',
+          es: 'Horas valle Enedis, de abril a octubre',
+        },
+        description: {
+          en: 'Weekdays, 1 Apr to 31 Oct. Same sources and same rounding as the November to March hours; the same hours if your home has not switched to seasonal off-peak hours yet.',
+          fr: 'En semaine, du 1/04 au 31/10. Mêmes sources et même arrondi que pour novembre à mars ; les mêmes heures si votre logement n’est pas encore passé aux heures creuses saisonnières.',
+          de: 'Werktags, 1.4. bis 31.10. Gleiche Quellen und gleiche Rundung wie für November bis März; dieselben Zeiten, wenn deine Wohnung noch keine saisonalen Nebenzeiten hat.',
+          es: 'Entre semana, del 1/4 al 31/10. Mismas fuentes y mismo redondeo que de noviembre a marzo; las mismas horas si su vivienda aún no tiene horas valle estacionales.',
+        },
+        required: true,
       },
-      default: DEFAULT_OFF_PEAK_SLOTS,
-      required: true,
-    });
+    );
   }
   inputs.push(
     {
@@ -277,7 +317,14 @@ function tariffOf(option) {
     rules.push(reduced(RULE_LABELS.chosen_day, { weekdays: ['{{input:chosen_day}}'] }));
   }
   if (option.off_peak_hours) {
-    rules.push(reduced(RULE_LABELS.off_peak_hours, { time: '{{input:off_peak_slots}}' }));
+    for (const season of SEASONS) {
+      rules.push(
+        reduced(RULE_LABELS.off_peak_hours, {
+          season: { from: season.from, to: season.to },
+          time: `{{input:${season.input}}}`,
+        }),
+      );
+    }
   }
   return {
     tariff_version: 1,
@@ -308,7 +355,7 @@ export function buildEnergyContracts() {
       currency: TARIFF.currency,
       timezone: TIMEZONE,
       pricing_mode: 'rules',
-      version: TARIFF.applicable_from,
+      version: `${TARIFF.applicable_from}.${TEMPLATE_REVISION}`,
       calendars: [HOLIDAY_CALENDAR.key],
       inputs: inputsOf(option),
       tariff: tariffOf(option),
