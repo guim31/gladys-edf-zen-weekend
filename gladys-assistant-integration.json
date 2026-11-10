@@ -460,7 +460,7 @@
         "currency": "EUR",
         "timezone": "Europe/Paris",
         "pricing_mode": "rules",
-        "version": "2026-09-15",
+        "version": "2026-09-15.2",
         "calendars": ["holidays-fr"],
         "inputs": [
           {
@@ -578,28 +578,151 @@
         "currency": "EUR",
         "timezone": "Europe/Paris",
         "pricing_mode": "rules",
-        "version": "2026-09-15",
+        "version": "2026-09-15.2",
         "calendars": ["holidays-fr"],
         "inputs": [
           {
-            "key": "off_peak_slots",
-            "type": "time_intervals",
+            "key": "off_peak_winter_1_start",
+            "type": "string",
             "label": {
-              "en": "Enedis off-peak hours (weekdays)",
-              "fr": "Heures creuses Enedis (en semaine)",
-              "de": "Enedis-Nebenzeiten (werktags)",
-              "es": "Horas valle Enedis (entre semana)"
+              "en": "Off-peak (winter, Nov-Mar), slot 1 start",
+              "fr": "HC (hiver, nov.-mars), plage 1 : début",
+              "de": "Nebenzeit (Winter, Nov.-März), Fenster 1 Beginn",
+              "es": "Horas valle (invierno, nov.-mar.), franja 1 inicio"
             },
             "description": {
-              "en": "Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.",
-              "fr": "Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.",
-              "de": "Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.",
-              "es": "Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30."
+              "en": "HH:MM, to the minute (01:22). Weekdays, 1 Nov to 31 Mar. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in winter and summer.",
+              "fr": "HH:MM, à la minute (01:22). En semaine, du 1/11 au 31/03. Voir votre facture, votre compte Enedis ou le courrier de la réforme des heures creuses. Sans heures saisonnières, mêmes heures en hiver et en été.",
+              "de": "HH:MM, minutengenau (01:22). Werktags, 1.11. bis 31.3.. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten im Winter und Sommer.",
+              "es": "HH:MM, al minuto (01:22). Entre semana, del 1/11 al 31/3. En su factura, su cuenta Enedis o la carta de la reforma de horas valle. Sin horas estacionales: mismas horas en invierno y en verano."
             },
-            "default": [
-              ["04:00", "08:00"],
-              ["12:30", "16:30"]
-            ],
+            "default": "00:01",
+            "required": true
+          },
+          {
+            "key": "off_peak_winter_1_end",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (winter, Nov-Mar), slot 1 end",
+              "fr": "HC (hiver, nov.-mars), plage 1 : fin",
+              "de": "Nebenzeit (Winter, Nov.-März), Fenster 1 Ende",
+              "es": "Horas valle (invierno, nov.-mar.), franja 1 fin"
+            },
+            "description": {
+              "en": "HH:MM (06:52). An end before the start runs past midnight (22:00 → 06:00).",
+              "fr": "HH:MM (06:52). Une fin avant le début passe minuit (22:00 → 06:00).",
+              "de": "HH:MM (06:52). Ein Ende vor dem Beginn geht über Mitternacht (22:00 → 06:00).",
+              "es": "HH:MM (06:52). Un fin anterior al inicio pasa de medianoche (22:00 → 06:00)."
+            },
+            "default": "00:02",
+            "required": true
+          },
+          {
+            "key": "off_peak_winter_2_start",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (winter, Nov-Mar), slot 2 start",
+              "fr": "HC (hiver, nov.-mars), plage 2 : début",
+              "de": "Nebenzeit (Winter, Nov.-März), Fenster 2 Beginn",
+              "es": "Horas valle (invierno, nov.-mar.), franja 2 inicio"
+            },
+            "description": {
+              "en": "HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.",
+              "fr": "HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.",
+              "de": "HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.",
+              "es": "HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día."
+            },
+            "default": "00:01",
+            "required": true
+          },
+          {
+            "key": "off_peak_winter_2_end",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (winter, Nov-Mar), slot 2 end",
+              "fr": "HC (hiver, nov.-mars), plage 2 : fin",
+              "de": "Nebenzeit (Winter, Nov.-März), Fenster 2 Ende",
+              "es": "Horas valle (invierno, nov.-mar.), franja 2 fin"
+            },
+            "description": {
+              "en": "HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.",
+              "fr": "HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.",
+              "de": "HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.",
+              "es": "HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día."
+            },
+            "default": "00:02",
+            "required": true
+          },
+          {
+            "key": "off_peak_summer_1_start",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (summer, Apr-Oct), slot 1 start",
+              "fr": "HC (été, avr.-oct.), plage 1 : début",
+              "de": "Nebenzeit (Sommer, Apr.-Okt.), Fenster 1 Beginn",
+              "es": "Horas valle (verano, abr.-oct.), franja 1 inicio"
+            },
+            "description": {
+              "en": "HH:MM, to the minute (01:22). Weekdays, 1 Apr to 31 Oct. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in winter and summer.",
+              "fr": "HH:MM, à la minute (01:22). En semaine, du 1/04 au 31/10. Voir votre facture, votre compte Enedis ou le courrier de la réforme des heures creuses. Sans heures saisonnières, mêmes heures en hiver et en été.",
+              "de": "HH:MM, minutengenau (01:22). Werktags, 1.4. bis 31.10.. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten im Winter und Sommer.",
+              "es": "HH:MM, al minuto (01:22). Entre semana, del 1/4 al 31/10. En su factura, su cuenta Enedis o la carta de la reforma de horas valle. Sin horas estacionales: mismas horas en invierno y en verano."
+            },
+            "default": "00:01",
+            "required": true
+          },
+          {
+            "key": "off_peak_summer_1_end",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (summer, Apr-Oct), slot 1 end",
+              "fr": "HC (été, avr.-oct.), plage 1 : fin",
+              "de": "Nebenzeit (Sommer, Apr.-Okt.), Fenster 1 Ende",
+              "es": "Horas valle (verano, abr.-oct.), franja 1 fin"
+            },
+            "description": {
+              "en": "HH:MM (06:52). An end before the start runs past midnight (22:00 → 06:00).",
+              "fr": "HH:MM (06:52). Une fin avant le début passe minuit (22:00 → 06:00).",
+              "de": "HH:MM (06:52). Ein Ende vor dem Beginn geht über Mitternacht (22:00 → 06:00).",
+              "es": "HH:MM (06:52). Un fin anterior al inicio pasa de medianoche (22:00 → 06:00)."
+            },
+            "default": "00:02",
+            "required": true
+          },
+          {
+            "key": "off_peak_summer_2_start",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (summer, Apr-Oct), slot 2 start",
+              "fr": "HC (été, avr.-oct.), plage 2 : début",
+              "de": "Nebenzeit (Sommer, Apr.-Okt.), Fenster 2 Beginn",
+              "es": "Horas valle (verano, abr.-oct.), franja 2 inicio"
+            },
+            "description": {
+              "en": "HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.",
+              "fr": "HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.",
+              "de": "HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.",
+              "es": "HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día."
+            },
+            "default": "00:01",
+            "required": true
+          },
+          {
+            "key": "off_peak_summer_2_end",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (summer, Apr-Oct), slot 2 end",
+              "fr": "HC (été, avr.-oct.), plage 2 : fin",
+              "de": "Nebenzeit (Sommer, Apr.-Okt.), Fenster 2 Ende",
+              "es": "Horas valle (verano, abr.-oct.), franja 2 fin"
+            },
+            "description": {
+              "en": "HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.",
+              "fr": "HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.",
+              "de": "HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.",
+              "es": "HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día."
+            },
+            "default": "00:02",
             "required": true
           },
           {
@@ -687,7 +810,28 @@
                 {
                   "label": "Heures creuses",
                   "when": {
-                    "time": "{{input:off_peak_slots}}"
+                    "season": {
+                      "from": "11-01",
+                      "to": "03-31"
+                    },
+                    "time": [
+                      ["{{input:off_peak_winter_1_start}}", "{{input:off_peak_winter_1_end}}"],
+                      ["{{input:off_peak_winter_2_start}}", "{{input:off_peak_winter_2_end}}"]
+                    ]
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Heures creuses",
+                  "when": {
+                    "season": {
+                      "from": "04-01",
+                      "to": "10-31"
+                    },
+                    "time": [
+                      ["{{input:off_peak_summer_1_start}}", "{{input:off_peak_summer_1_end}}"],
+                      ["{{input:off_peak_summer_2_start}}", "{{input:off_peak_summer_2_end}}"]
+                    ]
                   },
                   "price": "{{input:off_peak_price}}"
                 }
@@ -724,7 +868,7 @@
         "currency": "EUR",
         "timezone": "Europe/Paris",
         "pricing_mode": "rules",
-        "version": "2026-09-15",
+        "version": "2026-09-15.2",
         "calendars": ["holidays-fr"],
         "inputs": [
           {
@@ -868,7 +1012,7 @@
         "currency": "EUR",
         "timezone": "Europe/Paris",
         "pricing_mode": "rules",
-        "version": "2026-09-15",
+        "version": "2026-09-15.2",
         "calendars": ["holidays-fr"],
         "inputs": [
           {
@@ -891,24 +1035,147 @@
             "required": true
           },
           {
-            "key": "off_peak_slots",
-            "type": "time_intervals",
+            "key": "off_peak_winter_1_start",
+            "type": "string",
             "label": {
-              "en": "Enedis off-peak hours (weekdays)",
-              "fr": "Heures creuses Enedis (en semaine)",
-              "de": "Enedis-Nebenzeiten (werktags)",
-              "es": "Horas valle Enedis (entre semana)"
+              "en": "Off-peak (winter, Nov-Mar), slot 1 start",
+              "fr": "HC (hiver, nov.-mars), plage 1 : début",
+              "de": "Nebenzeit (Winter, Nov.-März), Fenster 1 Beginn",
+              "es": "Horas valle (invierno, nov.-mar.), franja 1 inicio"
             },
             "description": {
-              "en": "Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.",
-              "fr": "Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.",
-              "de": "Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.",
-              "es": "Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30."
+              "en": "HH:MM, to the minute (01:22). Weekdays, 1 Nov to 31 Mar. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in winter and summer.",
+              "fr": "HH:MM, à la minute (01:22). En semaine, du 1/11 au 31/03. Voir votre facture, votre compte Enedis ou le courrier de la réforme des heures creuses. Sans heures saisonnières, mêmes heures en hiver et en été.",
+              "de": "HH:MM, minutengenau (01:22). Werktags, 1.11. bis 31.3.. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten im Winter und Sommer.",
+              "es": "HH:MM, al minuto (01:22). Entre semana, del 1/11 al 31/3. En su factura, su cuenta Enedis o la carta de la reforma de horas valle. Sin horas estacionales: mismas horas en invierno y en verano."
             },
-            "default": [
-              ["04:00", "08:00"],
-              ["12:30", "16:30"]
-            ],
+            "default": "00:01",
+            "required": true
+          },
+          {
+            "key": "off_peak_winter_1_end",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (winter, Nov-Mar), slot 1 end",
+              "fr": "HC (hiver, nov.-mars), plage 1 : fin",
+              "de": "Nebenzeit (Winter, Nov.-März), Fenster 1 Ende",
+              "es": "Horas valle (invierno, nov.-mar.), franja 1 fin"
+            },
+            "description": {
+              "en": "HH:MM (06:52). An end before the start runs past midnight (22:00 → 06:00).",
+              "fr": "HH:MM (06:52). Une fin avant le début passe minuit (22:00 → 06:00).",
+              "de": "HH:MM (06:52). Ein Ende vor dem Beginn geht über Mitternacht (22:00 → 06:00).",
+              "es": "HH:MM (06:52). Un fin anterior al inicio pasa de medianoche (22:00 → 06:00)."
+            },
+            "default": "00:02",
+            "required": true
+          },
+          {
+            "key": "off_peak_winter_2_start",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (winter, Nov-Mar), slot 2 start",
+              "fr": "HC (hiver, nov.-mars), plage 2 : début",
+              "de": "Nebenzeit (Winter, Nov.-März), Fenster 2 Beginn",
+              "es": "Horas valle (invierno, nov.-mar.), franja 2 inicio"
+            },
+            "description": {
+              "en": "HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.",
+              "fr": "HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.",
+              "de": "HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.",
+              "es": "HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día."
+            },
+            "default": "00:01",
+            "required": true
+          },
+          {
+            "key": "off_peak_winter_2_end",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (winter, Nov-Mar), slot 2 end",
+              "fr": "HC (hiver, nov.-mars), plage 2 : fin",
+              "de": "Nebenzeit (Winter, Nov.-März), Fenster 2 Ende",
+              "es": "Horas valle (invierno, nov.-mar.), franja 2 fin"
+            },
+            "description": {
+              "en": "HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.",
+              "fr": "HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.",
+              "de": "HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.",
+              "es": "HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día."
+            },
+            "default": "00:02",
+            "required": true
+          },
+          {
+            "key": "off_peak_summer_1_start",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (summer, Apr-Oct), slot 1 start",
+              "fr": "HC (été, avr.-oct.), plage 1 : début",
+              "de": "Nebenzeit (Sommer, Apr.-Okt.), Fenster 1 Beginn",
+              "es": "Horas valle (verano, abr.-oct.), franja 1 inicio"
+            },
+            "description": {
+              "en": "HH:MM, to the minute (01:22). Weekdays, 1 Apr to 31 Oct. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in winter and summer.",
+              "fr": "HH:MM, à la minute (01:22). En semaine, du 1/04 au 31/10. Voir votre facture, votre compte Enedis ou le courrier de la réforme des heures creuses. Sans heures saisonnières, mêmes heures en hiver et en été.",
+              "de": "HH:MM, minutengenau (01:22). Werktags, 1.4. bis 31.10.. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten im Winter und Sommer.",
+              "es": "HH:MM, al minuto (01:22). Entre semana, del 1/4 al 31/10. En su factura, su cuenta Enedis o la carta de la reforma de horas valle. Sin horas estacionales: mismas horas en invierno y en verano."
+            },
+            "default": "00:01",
+            "required": true
+          },
+          {
+            "key": "off_peak_summer_1_end",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (summer, Apr-Oct), slot 1 end",
+              "fr": "HC (été, avr.-oct.), plage 1 : fin",
+              "de": "Nebenzeit (Sommer, Apr.-Okt.), Fenster 1 Ende",
+              "es": "Horas valle (verano, abr.-oct.), franja 1 fin"
+            },
+            "description": {
+              "en": "HH:MM (06:52). An end before the start runs past midnight (22:00 → 06:00).",
+              "fr": "HH:MM (06:52). Une fin avant le début passe minuit (22:00 → 06:00).",
+              "de": "HH:MM (06:52). Ein Ende vor dem Beginn geht über Mitternacht (22:00 → 06:00).",
+              "es": "HH:MM (06:52). Un fin anterior al inicio pasa de medianoche (22:00 → 06:00)."
+            },
+            "default": "00:02",
+            "required": true
+          },
+          {
+            "key": "off_peak_summer_2_start",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (summer, Apr-Oct), slot 2 start",
+              "fr": "HC (été, avr.-oct.), plage 2 : début",
+              "de": "Nebenzeit (Sommer, Apr.-Okt.), Fenster 2 Beginn",
+              "es": "Horas valle (verano, abr.-oct.), franja 2 inicio"
+            },
+            "description": {
+              "en": "HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.",
+              "fr": "HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.",
+              "de": "HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.",
+              "es": "HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día."
+            },
+            "default": "00:01",
+            "required": true
+          },
+          {
+            "key": "off_peak_summer_2_end",
+            "type": "string",
+            "label": {
+              "en": "Off-peak (summer, Apr-Oct), slot 2 end",
+              "fr": "HC (été, avr.-oct.), plage 2 : fin",
+              "de": "Nebenzeit (Sommer, Apr.-Okt.), Fenster 2 Ende",
+              "es": "Horas valle (verano, abr.-oct.), franja 2 fin"
+            },
+            "description": {
+              "en": "HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.",
+              "fr": "HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.",
+              "de": "HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.",
+              "es": "HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día."
+            },
+            "default": "00:02",
             "required": true
           },
           {
@@ -1003,7 +1270,28 @@
                 {
                   "label": "Heures creuses",
                   "when": {
-                    "time": "{{input:off_peak_slots}}"
+                    "season": {
+                      "from": "11-01",
+                      "to": "03-31"
+                    },
+                    "time": [
+                      ["{{input:off_peak_winter_1_start}}", "{{input:off_peak_winter_1_end}}"],
+                      ["{{input:off_peak_winter_2_start}}", "{{input:off_peak_winter_2_end}}"]
+                    ]
+                  },
+                  "price": "{{input:off_peak_price}}"
+                },
+                {
+                  "label": "Heures creuses",
+                  "when": {
+                    "season": {
+                      "from": "04-01",
+                      "to": "10-31"
+                    },
+                    "time": [
+                      ["{{input:off_peak_summer_1_start}}", "{{input:off_peak_summer_1_end}}"],
+                      ["{{input:off_peak_summer_2_start}}", "{{input:off_peak_summer_2_end}}"]
+                    ]
                   },
                   "price": "{{input:off_peak_price}}"
                 }

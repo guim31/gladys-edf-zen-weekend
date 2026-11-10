@@ -10,21 +10,22 @@ import { readFile } from 'node:fs/promises';
 import { engine } from './helpers/engine.js';
 import {
   CHOSEN_DAYS,
-  DEFAULT_OFF_PEAK_SLOTS,
+  SEASONS,
+  UNSET_SLOT,
   HOLIDAY_CALENDAR,
   OPTIONS,
   TARIFF,
   buildEnergyContracts,
 } from '../src/templates.js';
 import { holidaysBetween } from '../src/holidays.js';
+import { allYear, seasonal, wizardInputs } from './helpers/inputs.js';
 
 const manifest = JSON.parse(
   await readFile(new URL('../gladys-assistant-integration.json', import.meta.url), 'utf8'),
 );
 const { templates, calendars } = buildEnergyContracts();
 const template = (key) => templates.find((entry) => entry.key === key);
-const defaults = (entry) =>
-  Object.fromEntries(entry.inputs.map((input) => [input.key, input.default]));
+const defaults = (entry) => wizardInputs(entry);
 
 const HOLIDAYS = holidaysBetween('2025-01-01', '2030-12-31').map(({ date }) => ({
   calendar_key: HOLIDAY_CALENDAR.key,
@@ -76,7 +77,7 @@ test('four templates, one per EDF option, under keys that never change', () => {
     assert.equal(entry.currency, 'EUR');
     assert.equal(entry.timezone, 'Europe/Paris');
     assert.equal(entry.pricing_mode, 'rules');
-    assert.equal(entry.version, TARIFF.applicable_from);
+    assert.equal(entry.version, `${TARIFF.applicable_from}.2`);
     assert.deepEqual(entry.calendars, ['holidays-fr']);
     assert.deepEqual(entry.tariff.calendars, ['holidays-fr']);
   }
@@ -89,11 +90,13 @@ test('every template passes the validator of the core once its inputs are substi
   for (const entry of templates) {
     const tariff = engine.substituteInputs(entry.tariff, defaults(entry));
     assert.doesNotThrow(() => engine.validateTariff(tariff), entry.key);
-    // The manifest validation of the core uses the first option of a select.
+    // The manifest validation of the core (sampleInputValues) uses the
+    // default, the first option of a select, otherwise a sample of the type.
+    const SAMPLES = { number: 1, string: 'sample', time_intervals: [['22:00', '06:00']] };
     const sample = Object.fromEntries(
       entry.inputs.map((input) => [
         input.key,
-        input.default ?? (input.type === 'select' ? input.options[0] : 1),
+        input.default ?? (input.type === 'select' ? input.options[0] : SAMPLES[input.type]),
       ]),
     );
     assert.doesNotThrow(() => engine.compileTariff(entry.tariff, sample), entry.key);
@@ -142,14 +145,6 @@ test('the defaults are the EDF grid of 15 September 2026 (6 kVA)', () => {
     assert.deepEqual([values.peak_price, values.off_peak_price], expected[entry.key]);
     assert.equal(values.subscription, 15.86);
   }
-  assert.deepEqual(defaults(template('edf-zen-weekend-off-peak')).off_peak_slots, [
-    ['04:00', '08:00'],
-    ['12:30', '16:30'],
-  ]);
-  assert.deepEqual(DEFAULT_OFF_PEAK_SLOTS, [
-    ['04:00', '08:00'],
-    ['12:30', '16:30'],
-  ]);
   assert.deepEqual(template('edf-zen-weekend-plus').inputs[0].options, CHOSEN_DAYS);
   // The subscription grid by power is written out in the input description.
   const subscription = template('edf-zen-weekend').inputs.find((i) => i.key === 'subscription');
@@ -295,8 +290,8 @@ test('Plus option: the chosen weekday is reduced from midnight to midnight', () 
   );
 });
 
-test('the off-peak hours the user enters replace the defaults, night slots included', () => {
-  const night = { off_peak_slots: [['22:00', '06:00']] };
+test('the off-peak hours the user enters, night slots included', () => {
+  const night = allYear([['22:00', '06:00']]);
   assert.deepEqual(
     price(
       'edf-zen-weekend-off-peak',
@@ -310,6 +305,119 @@ test('the off-peak hours the user enters replace the defaults, night slots inclu
       { inputs: night },
     ).map((c) => c.label),
     ['Heures pleines', 'Heures creuses', 'Heures creuses', 'Heures pleines', 'Heures pleines'],
+  );
+});
+
+test('off-peak options: two text slots per season, to the minute, pre-filled with nothing billed', () => {
+  for (const key of ['edf-zen-weekend-off-peak', 'edf-zen-weekend-plus-off-peak']) {
+    const entry = template(key);
+    const slots = entry.inputs.filter((input) => /^off_peak_(winter|summer)_/.test(input.key));
+    assert.deepEqual(
+      slots.map((input) => [input.key, input.type, input.default, input.required]),
+      ['winter', 'summer'].flatMap((season) =>
+        [1, 2].flatMap((slot) => [
+          [`off_peak_${season}_${slot}_start`, 'string', '00:01', true],
+          [`off_peak_${season}_${slot}_end`, 'string', '00:02', true],
+        ]),
+      ),
+    );
+    assert.ok(entry.inputs.length <= 16);
+    const rules = entry.tariff.components[0].rules.filter((r) => r.label === 'Heures creuses');
+    assert.deepEqual(
+      rules.map((rule) => rule.when),
+      [
+        {
+          season: { from: '11-01', to: '03-31' },
+          time: [
+            ['{{input:off_peak_winter_1_start}}', '{{input:off_peak_winter_1_end}}'],
+            ['{{input:off_peak_winter_2_start}}', '{{input:off_peak_winter_2_end}}'],
+          ],
+        },
+        {
+          season: { from: '04-01', to: '10-31' },
+          time: [
+            ['{{input:off_peak_summer_1_start}}', '{{input:off_peak_summer_1_end}}'],
+            ['{{input:off_peak_summer_2_start}}', '{{input:off_peak_summer_2_end}}'],
+          ],
+        },
+      ],
+    );
+    // Where to read the hours, and the format.
+    assert.match(slots[0].description.fr, /facture.*compte Enedis.*réforme/);
+    assert.match(slots[0].description.fr, /01:22/);
+  }
+  assert.deepEqual(
+    SEASONS.map(({ from, to }) => [from, to]),
+    [
+      ['11-01', '03-31'],
+      ['04-01', '10-31'],
+    ],
+  );
+  // The defaults left as they are bill no off-peak hour at all.
+  assert.deepEqual(UNSET_SLOT, ['00:01', '00:02']);
+  const entry = template('edf-zen-weekend-off-peak');
+  const unset = Object.fromEntries(entry.inputs.map((input) => [input.key, input.default]));
+  const day = Array.from({ length: 48 }, (_, i) =>
+    new Date(Date.parse('2027-01-11T23:00:00Z') + i * 1_800_000).toISOString(),
+  );
+  const compiled = engine.compileTariff(entry.tariff, unset);
+  const { costs } = engine.priceIntervals(
+    compiled,
+    CONTRACT,
+    day.map((starts_at) => ({ starts_at, kwh: 1 })),
+    { calendars: holidayLookup() },
+  );
+  assert.deepEqual([...new Set(costs.map((cost) => cost.label))], ['Heures pleines']);
+  // A time typed wrong is refused by the core when the contract is saved.
+  for (const typo of ['1:22', '01h22', '', '25:00']) {
+    const tariff = engine.substituteInputs(entry.tariff, {
+      ...defaults(entry),
+      off_peak_winter_1_start: typo,
+    });
+    assert.throws(() => engine.validateTariff(tariff), typo);
+  }
+});
+
+test('seasonal off-peak hours on the minute: the reform example of 12 January 2027', () => {
+  const reform = seasonal(
+    [
+      ['01:22', '06:52'],
+      ['12:52', '15:22'],
+    ],
+    [
+      ['00:22', '05:22'],
+      ['13:22', '16:22'],
+    ],
+  );
+  assert.deepEqual(
+    price(
+      'edf-zen-weekend-off-peak',
+      [
+        '2027-01-12T00:21:00Z', // Tuesday 12 January 01:21
+        '2027-01-12T00:22:00Z', // 01:22
+        '2027-01-12T05:51:00Z', // 06:51
+        '2027-01-12T05:52:00Z', // 06:52
+        '2027-01-12T14:21:00Z', // 15:21
+        '2027-01-12T14:22:00Z', // 15:22
+        '2027-03-31T22:22:00Z', // Thursday 1 April 00:22, summer
+        '2027-04-01T03:21:00Z', // 05:21
+        '2027-04-01T03:22:00Z', // 05:22
+        '2027-04-01T11:30:00Z', // 13:30
+      ],
+      { inputs: reform },
+    ).map((c) => c.label),
+    [
+      'Heures pleines',
+      'Heures creuses',
+      'Heures creuses',
+      'Heures pleines',
+      'Heures creuses',
+      'Heures pleines',
+      'Heures creuses',
+      'Heures creuses',
+      'Heures pleines',
+      'Heures creuses',
+    ],
   );
 });
 

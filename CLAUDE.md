@@ -270,5 +270,30 @@ Flex (jours « sobriété » annoncés par EDF) non couverte.
 - `getEnergyContracts()` ne rend ni nom ni compteur : le widget décrit le contrat actif le plus
   récent ; plusieurs contrats aux mêmes horaires ne déclenchent qu'une fois.
 
+**Heures creuses saisonnières (1.1.0, 10/11/2026)**
+
+- Réforme Enedis 2025-2027 : deux saisons, hiver 01/11 → 31/03 et été 01/04 → 31/10 (`SEASONS` de
+  `src/templates.js`), une règle « Heures creuses » `season` + `time` par saison. Les saisons se lisent
+  sur la date locale du fuseau du contrat, comme le moteur.
+- **Saisie à la minute par champs `string`** : la grille `time_intervals` du cœur (`HourSlotGrid`, vérifié en
+  5.3.2) n'a que 48 demi-heures, et un défaut hors grille est effacé au premier clic. Chaque saison a donc
+  deux plages de deux champs texte (`off_peak_<saison>_<n>_start|end`), placés un par un dans le tableau
+  `time` : `substituteInputs` remplace un placeholder seul par sa valeur, à n'importe quelle profondeur, et
+  le motif `HH:MM` du schéma refuse une faute de frappe à l'enregistrement. Le moteur facture chaque
+  demi-heure à sa première minute ; nos déclencheurs, eux, partent à la minute.
+- **Un champ `string` doit avoir un défaut valide** : sans défaut, la validation du manifeste par le cœur
+  (`sampleInputValues`) substitue `"sample"`, qui n'est pas une heure, et **rejette tout le manifeste**.
+  Défaut `00:01`-`00:02` (`UNSET_SLOT`) : aucune demi-heure n'y commence, donc rien de facturé, et le
+  conteneur la traite comme non saisie (widget « À saisir dans le contrat »). Jamais `00:00`-`00:00`, qui
+  vaut toute la journée. L'ancien défaut 04:00-08:00 / 12:30-16:30, plausible, avait été gardé à tort.
+- Une entrée de modèle n'accepte pas de champ `placeholder` (`INPUT_FIELDS`).
+- **Compatibilité** : le cœur garde le tarif substitué du contrat, et **modifier un contrat existant
+  rouvre son tarif en JSON**, sans les champs du modèle : un nouveau modèle ne touche jamais un ancien
+  contrat. `src/schedule.js` lit encore `off_peak_slots` (1.0) pour les deux saisons quand aucun champ
+  saisonnier n'existe, et garde la même `signature` quand les deux saisons sont identiques (clé des
+  événements déjà envoyés dans `/data`). `test/fixtures/energy-contracts-1.0.1.json` fige les anciens tarifs.
+- Le conteneur ne voit que les `inputs` du contrat, jamais son tarif (`getEnergyContracts()`) : des heures
+  changées à la main dans le JSON sont facturées mais invisibles des déclencheurs et du widget.
+
 **Mettre à jour les prix** : nouveau fichier `src/tariffs/edf-<date>.json`, `TARIFF` dans
 `src/templates.js`, `npm run templates`, `npm test`. La `version` des modèles suit la date.

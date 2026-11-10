@@ -7,7 +7,7 @@ wizard of Gladys, so that every kilowatt-hour is priced right:
 - the **whole weekend** at the reduced price, from Saturday 00:00 to Sunday 24:00;
 - the **national public holidays** at the reduced price, computed offline by the integration;
 - your **Enedis off-peak hours** on the other days, with the off-peak options (8 hours a day, the ones on
-  your bill);
+  your bill), one set for winter and one for summer since the off-peak hours reform;
 - the **chosen day** (Monday, Wednesday or Friday) of the Plus offer;
 - the **monthly subscription** of your subscribed power.
 
@@ -37,7 +37,8 @@ page except the language of the scene texts.
 1. Open **Integrations → Energy Monitoring → Contracts** and create a contract.
 2. Pick one of the four **EDF Zen Week-End** templates (see below), then your electric meter and the start
    date of your contract.
-3. Check the pre-filled values against your bill: off-peak hours, prices, subscription. Save.
+3. Enter your winter and summer off-peak hours, then check the prices and the subscription against your
+   bill. Save.
 
 Gladys then prices every half-hour of consumption with this contract, from its start date, including the
 past.
@@ -71,9 +72,30 @@ taxes): 3 kVA 12.13 (Week-End option only) · 6 kVA 15.86 · 9 kVA 19.88 · 12 k
 18 kVA 31.14 · 24 kVA 39.14 · 30 kVA 46.47 · 36 kVA 53.88. The template is pre-filled for 6 kVA: type
 yours.
 
-The **off-peak hours** are set by Enedis for each home: they are on your bill and on enedis.fr. The
-template is pre-filled with 04:00-08:00 and 12:30-16:30; most homes have night hours (for example
-22:00-06:00): select yours in the grid.
+### Off-peak hours: winter and summer
+
+The **off-peak hours** are set by Enedis for each home. With the off-peak hours reform (2025-2027), each
+home gets two sets of slots: one for **winter** (1 November to 31 March) and one for **summer** (1 April to
+31 October). The templates with off-peak hours therefore have fields for each season. Your hours are on your bill, in
+your Enedis account (enedis.fr) and in the letter Enedis sends before the change. If your home has not
+switched to seasonal hours yet, enter the same hours for winter and summer.
+
+Each season has **two slots**, each with a start and an end as `HH:MM`, to the minute: for example `01:22`
+to `06:52`, then `12:52` to `15:22`. An end before the start runs past midnight (`22:00` to `06:00`). If your
+home has a single slot, repeat it in slot 2. Never enter the same start and end: that is the whole day. A
+time written wrong (`1:22`, `01h22`) is refused by Gladys when the contract is saved.
+
+The fields are pre-filled with `00:01` to `00:02`, a value that bills no off-peak hour: left as it is, it
+never gives false off-peak hours, and the widget shows "To set in the contract". Up to version 1.0.1 the
+hours were pre-filled with 04:00-08:00 and 12:30-16:30, the hours of some homes only: check those of a
+contract created before.
+
+### Contract created before version 1.1.0
+
+It keeps working as it is, with the same hours all year round: Gladys keeps the tariff stored when it was
+created, and the integration still reads its former off-peak hours field. When your seasonal hours come
+into force (the date is in the Enedis letter), set the end of the former contract to the day before and
+create a new one from the updated template, with your winter and summer hours.
 
 ### Language
 
@@ -90,7 +112,7 @@ The contract is priced by Gladys itself, with the rules of the template:
    only, are not reduced by EDF) is reduced from 00:00 to 24:00;
 2. the **weekend** is reduced from Saturday 00:00 to Sunday 24:00;
 3. the **chosen day** of the Plus offer is reduced from 00:00 to 24:00;
-4. the **off-peak hours** are reduced on the other days;
+4. the **off-peak hours** of the season (winter or summer) are reduced on the other days;
 5. any other time is at the full price.
 
 The integration publishes the public holidays to the `holidays-fr` calendar of Gladys, about a week ahead
@@ -149,8 +171,10 @@ Always trust your bill over the pre-filled values.
   logs, "Published … public holiday(s)" lists the publications.
 - **"Holiday calendar: fed by another integration"** in the widget: another integration already provides
   `holidays-fr`; the templates read it. The scene triggers and the widget still follow the national holidays computed by this integration: if the other calendar has different days, they may disagree with the price.
-- **Wrong off-peak hours**: edit the contract in Energy Monitoring → Contracts. The integration reads the
-  contracts again within 10 minutes.
+- **Wrong off-peak hours**: set the end of the contract to the day before and create a new one from the
+  template, with the right hours. Editing an existing contract opens its tariff as JSON: hours changed there
+  are billed, but the triggers and the widget read the template fields and do not see them. The integration
+  reads the contracts again within 10 minutes.
 - **No scene event**: the integration fires none when it notices a change more than 15 minutes late (Gladys
   unreachable, machine asleep).
 
@@ -159,7 +183,9 @@ Always trust your bill over the pre-filled values.
 - Prices are those of EDF on 15 September 2026 for new subscriptions; an older contract may have others.
 - The self-producer surcharge (9.84 EUR/year excluding taxes) is not included.
 - The Flex option is not supported.
-- The off-peak hours follow the 30-minute grid of the Gladys wizard.
+- Gladys counts the consumption by half-hour, each at the price of its first minute: with off-peak hours
+  from 01:22 to 06:52, the 01:00 half-hour is at the full price and the 06:30 one at the reduced price. The
+  scene triggers fire at the exact minute.
 - Changing the chosen day (twice a contractual year) means a new contract from the date of the change.
 - Not affiliated with EDF or Enedis. "EDF" and "Zen Week-End" are trademarks of their owners.
 

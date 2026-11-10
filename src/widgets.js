@@ -31,6 +31,9 @@ function dayText(schedule, date, language) {
   if (day.whole) {
     return text.allDay(periodLabel(day.whole, schedule, language));
   }
+  if (day.unset) {
+    return text.unset;
+  }
   if (day.slots.length === 0) {
     return text.none;
   }

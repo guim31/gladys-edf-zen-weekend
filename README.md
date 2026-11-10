@@ -9,7 +9,8 @@ French **EDF Zen Week-End** and **Zen Week-End Plus** electricity contracts righ
   priced by the rule engine of Gladys itself;
 - the **French national public holidays**, reduced like the weekend, computed offline and published to the
   `holidays-fr` tariff calendar of Gladys;
-- your **Enedis off-peak hours**, editable in the contract (default 04:00-08:00 and 12:30-16:30);
+- your **Enedis off-peak hours**, one set for winter and one for summer (the Enedis reform of 2025-2027),
+  entered in the contract;
 - **scene triggers** "Off-peak hours start" and "Off-peak hours end" at the exact minute, a **scene
   action** "Read the EDF tariff period", and an **"Off-peak hours" dashboard widget**.
 
@@ -36,7 +37,8 @@ every 30 minutes and also fires on a mere change of period name).
 1. In Gladys: **Integrations → Install from GitHub**, address
    `https://github.com/guim31/gladys-edf-zen-weekend`.
 2. **Integrations → Energy Monitoring → Contracts**: create a contract from an **EDF Zen Week-End**
-   template, check its off-peak hours, prices and subscription against your bill.
+   template, enter your winter and summer off-peak hours, check the prices and subscription against your
+   bill.
 
 The full documentation is in [`docs/en.md`](docs/en.md) (also in [French](docs/fr.md),
 [German](docs/de.md) and [Spanish](docs/es.md)).

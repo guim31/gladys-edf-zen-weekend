@@ -29,11 +29,53 @@ export const HOLIDAY_CALENDAR = {
 };
 export const HOLIDAY_VALUE = 'holiday';
 
-/** Guilhem's Enedis off-peak hours, the default of the off-peak options. */
-export const DEFAULT_OFF_PEAK_SLOTS = [
-  ['04:00', '08:00'],
-  ['12:30', '16:30'],
-];
+/**
+ * Revision of the template structure, appended to the price grid date in the
+ * template `version`. 2: off-peak hours by season, to the minute (1.1.0).
+ */
+export const TEMPLATE_REVISION = 2;
+
+/**
+ * The two seasons of the Enedis off-peak hours reform (2025-2027): each home
+ * gets one set of slots from 1 November to 31 March and another from 1 April
+ * to 31 October. Inclusive bounds, like the `season` condition of the core;
+ * winter crosses 1 January.
+ *
+ * Each season has two slots of two `string` inputs ("01:22"): the
+ * `time_intervals` grid of the core wizard only offers half-hours, and the
+ * reform hours fall on the minute. The core substitutes each placeholder
+ * inside the `time` array and checks the HH:MM pattern when the contract is
+ * saved. Input keys are stored in the users' contracts: never rename one.
+ */
+export const SLOTS_PER_SEASON = 2;
+
+/**
+ * The default of the slot inputs. The core validates a manifest with the
+ * input defaults, and a `string` input without one with "sample": an invalid
+ * time, so the whole manifest would be refused. 00:01-00:02 is a valid time
+ * that no half-hour of consumption starts in (the core prices each one at its
+ * first minute): left as it is, it bills no off-peak hour, and the container
+ * treats it as not filled in (no event, "to be set" in the widget). The 1.0
+ * default (04:00-08:00, 12:30-16:30) looked real and was kept by mistake.
+ */
+export const UNSET_SLOT = ['00:01', '00:02'];
+export const SEASONS = [
+  { key: 'winter', from: '11-01', to: '03-31' },
+  { key: 'summer', from: '04-01', to: '10-31' },
+].map((season) => ({
+  ...season,
+  inputs: Array.from({ length: SLOTS_PER_SEASON }, (_, index) => [
+    `off_peak_${season.key}_${index + 1}_start`,
+    `off_peak_${season.key}_${index + 1}_end`,
+  ]),
+}));
+
+/**
+ * The single input of the templates before 1.1.0, same hours all year round.
+ * The contracts created with it keep their stored tariff in the core; the
+ * container still reads it (src/schedule.js).
+ */
+export const LEGACY_OFF_PEAK_INPUT = 'off_peak_slots';
 
 export const CHOSEN_DAYS = ['mon', 'wed', 'fri'];
 
@@ -147,6 +189,77 @@ function subscriptionGrid(option, decimal) {
     .join(' · ');
 }
 
+const SEASON_TEXT = {
+  winter: {
+    en: 'winter, Nov-Mar',
+    fr: 'hiver, nov.-mars',
+    de: 'Winter, Nov.-März',
+    es: 'invierno, nov.-mar.',
+  },
+  summer: {
+    en: 'summer, Apr-Oct',
+    fr: 'été, avr.-oct.',
+    de: 'Sommer, Apr.-Okt.',
+    es: 'verano, abr.-oct.',
+  },
+};
+const BOUND_TEXT = {
+  start: { en: 'start', fr: 'début', de: 'Beginn', es: 'inicio' },
+  end: { en: 'end', fr: 'fin', de: 'Ende', es: 'fin' },
+};
+
+/** "Off-peak (winter, Nov-Mar), slot 1 start". */
+function slotLabel(season, slot, bound) {
+  const s = SEASON_TEXT[season];
+  const b = BOUND_TEXT[bound];
+  return {
+    en: `Off-peak (${s.en}), slot ${slot} ${b.en}`,
+    fr: `HC (${s.fr}), plage ${slot} : ${b.fr}`,
+    de: `Nebenzeit (${s.de}), Fenster ${slot} ${b.de}`,
+    es: `Horas valle (${s.es}), franja ${slot} ${b.es}`,
+  };
+}
+
+/** Where to read the hours on the first field of a season, the format on the others. */
+function slotDescription(season, slot, bound) {
+  if (slot === 1 && bound === 'start') {
+    const range =
+      season === 'winter'
+        ? {
+            en: '1 Nov to 31 Mar',
+            fr: 'du 1/11 au 31/03',
+            de: '1.11. bis 31.3.',
+            es: 'del 1/11 al 31/3',
+          }
+        : {
+            en: '1 Apr to 31 Oct',
+            fr: 'du 1/04 au 31/10',
+            de: '1.4. bis 31.10.',
+            es: 'del 1/4 al 31/10',
+          };
+    return {
+      en: `HH:MM, to the minute (01:22). Weekdays, ${range.en}. On your bill, your Enedis account or the letter of the off-peak hours reform. No seasonal hours yet: same hours in winter and summer.`,
+      fr: `HH:MM, à la minute (01:22). En semaine, ${range.fr}. Voir votre facture, votre compte Enedis ou le courrier de la réforme des heures creuses. Sans heures saisonnières, mêmes heures en hiver et en été.`,
+      de: `HH:MM, minutengenau (01:22). Werktags, ${range.de}. Siehe Rechnung, Enedis-Konto oder Schreiben zur Nebenzeitreform. Noch keine saisonalen Zeiten: gleiche Zeiten im Winter und Sommer.`,
+      es: `HH:MM, al minuto (01:22). Entre semana, ${range.es}. En su factura, su cuenta Enedis o la carta de la reforma de horas valle. Sin horas estacionales: mismas horas en invierno y en verano.`,
+    };
+  }
+  if (slot === 1) {
+    return {
+      en: 'HH:MM (06:52). An end before the start runs past midnight (22:00 → 06:00).',
+      fr: 'HH:MM (06:52). Une fin avant le début passe minuit (22:00 → 06:00).',
+      de: 'HH:MM (06:52). Ein Ende vor dem Beginn geht über Mitternacht (22:00 → 06:00).',
+      es: 'HH:MM (06:52). Un fin anterior al inicio pasa de medianoche (22:00 → 06:00).',
+    };
+  }
+  return {
+    en: 'HH:MM. A single slot: repeat slot 1 here. Never the same start and end: that is the whole day.',
+    fr: 'HH:MM. Une seule plage : recopiez ici la plage 1. Jamais le même début et la même fin : ce serait toute la journée.',
+    de: 'HH:MM. Nur ein Fenster: wiederhole hier Fenster 1. Nie gleicher Beginn und gleiches Ende: das wäre der ganze Tag.',
+    es: 'HH:MM. Una sola franja: repita aquí la franja 1. Nunca el mismo inicio y fin: sería todo el día.',
+  };
+}
+
 function inputsOf(option) {
   const prices = TARIFF.options[option.tariff];
   const inputs = [];
@@ -172,24 +285,21 @@ function inputsOf(option) {
     });
   }
   if (option.off_peak_hours) {
-    inputs.push({
-      key: 'off_peak_slots',
-      type: 'time_intervals',
-      label: {
-        en: 'Enedis off-peak hours (weekdays)',
-        fr: 'Heures creuses Enedis (en semaine)',
-        de: 'Enedis-Nebenzeiten (werktags)',
-        es: 'Horas valle Enedis (entre semana)',
-      },
-      description: {
-        en: 'Set by Enedis for your home (8 hours a day): read them on your bill or on enedis.fr. Pre-filled with 04:00-08:00 and 12:30-16:30.',
-        fr: 'Fixées par Enedis pour votre logement (8 h par jour) : lisez-les sur votre facture ou sur enedis.fr. Pré-remplies avec 4 h-8 h et 12 h 30-16 h 30.',
-        de: 'Von Enedis für deine Wohnung festgelegt (8 Stunden pro Tag): siehe Rechnung oder enedis.fr. Vorbelegt mit 04:00-08:00 und 12:30-16:30.',
-        es: 'Fijadas por Enedis para su vivienda (8 horas al día): consúltelas en su factura o en enedis.fr. Prerrellenadas con 04:00-08:00 y 12:30-16:30.',
-      },
-      default: DEFAULT_OFF_PEAK_SLOTS,
-      required: true,
-    });
+    // Pre-filled with UNSET_SLOT, never with plausible hours.
+    for (const season of SEASONS) {
+      season.inputs.forEach((pair, index) => {
+        pair.forEach((key, bound) => {
+          inputs.push({
+            key,
+            type: 'string',
+            label: slotLabel(season.key, index + 1, bound === 0 ? 'start' : 'end'),
+            description: slotDescription(season.key, index + 1, bound === 0 ? 'start' : 'end'),
+            default: UNSET_SLOT[bound],
+            required: true,
+          });
+        });
+      });
+    }
   }
   inputs.push(
     {
@@ -277,7 +387,14 @@ function tariffOf(option) {
     rules.push(reduced(RULE_LABELS.chosen_day, { weekdays: ['{{input:chosen_day}}'] }));
   }
   if (option.off_peak_hours) {
-    rules.push(reduced(RULE_LABELS.off_peak_hours, { time: '{{input:off_peak_slots}}' }));
+    for (const season of SEASONS) {
+      rules.push(
+        reduced(RULE_LABELS.off_peak_hours, {
+          season: { from: season.from, to: season.to },
+          time: season.inputs.map((pair) => pair.map((key) => `{{input:${key}}}`)),
+        }),
+      );
+    }
   }
   return {
     tariff_version: 1,
@@ -308,7 +425,7 @@ export function buildEnergyContracts() {
       currency: TARIFF.currency,
       timezone: TIMEZONE,
       pricing_mode: 'rules',
-      version: TARIFF.applicable_from,
+      version: `${TARIFF.applicable_from}.${TEMPLATE_REVISION}`,
       calendars: [HOLIDAY_CALENDAR.key],
       inputs: inputsOf(option),
       tariff: tariffOf(option),

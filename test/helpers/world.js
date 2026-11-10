@@ -7,10 +7,11 @@
 import { createFakeGladys } from '@gladysassistant/integration-sdk/testing';
 import { registerHandlers } from '../../src/app.js';
 import { buildEnergyContracts } from '../../src/templates.js';
+import { wizardInputs } from './inputs.js';
 
 const { templates } = buildEnergyContracts();
 
-/** A contract of one of our templates, its inputs the wizard defaults plus `inputs`. */
+/** A contract of one of our templates, its inputs the wizard ones plus `inputs`. */
 export function contractOf(templateKey, { inputs = {}, ...fields } = {}) {
   const template = templates.find((entry) => entry.key === templateKey);
   return {
@@ -18,10 +19,7 @@ export function contractOf(templateKey, { inputs = {}, ...fields } = {}) {
     template_key: templateKey,
     template_version: template.version,
     pricing_mode: 'rules',
-    inputs: {
-      ...Object.fromEntries(template.inputs.map((input) => [input.key, input.default])),
-      ...inputs,
-    },
+    inputs: wizardInputs(template, inputs),
     valid_from: '2026-09-15',
     valid_to: null,
     timezone: 'Europe/Paris',
