@@ -20,7 +20,7 @@ den aktuellen Zeitraum sagt, und ein **Widget „Nebenzeiten“** für das Dashb
 
 ## Voraussetzungen
 
-- Gladys Assistant **5.2.0** oder neuer (Energieverträge).
+- Gladys Assistant **5.3.0** oder neuer (Länder im Katalog; Energieverträge ab 5.2.0).
 - Ein Stromzähler in Gladys, dessen Verbrauch alle 30 Minuten bekannt ist (Integration
   Energieüberwachung: Linky über Enedis, ein Lixee- oder Tasmota-Index…).
 - Ein Vertrag EDF Zen Week-End oder Zen Week-End Plus. Kein Konto, kein API-Schlüssel, kein
@@ -145,7 +145,7 @@ aktualisierten Vorlage an. Deine Rechnung gilt immer vor den vorbelegten Werten.
 
 ## Fehlerbehebung
 
-- **Keine Vorlage im Assistenten**: Gladys 5.2.0 oder neuer ist nötig, und die Integration muss installiert
+- **Keine Vorlage im Assistenten**: Gladys 5.3.0 oder neuer ist nötig, und die Integration muss installiert
   sein.
 - **Ein Feiertag zum vollen Preis**: Prüfe, ob die Integration in der Woche davor lief; in ihren Logs listet
   „Published … public holiday(s)“ die Veröffentlichungen.

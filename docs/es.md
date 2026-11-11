@@ -21,7 +21,7 @@ en curso y un **widget «Horas valle»** para el panel.
 
 ## Requisitos
 
-- Gladys Assistant **5.2.0** o posterior (contratos de energía).
+- Gladys Assistant **5.3.0** o posterior (países del catálogo; contratos de energía desde 5.2.0).
 - Un contador eléctrico en Gladys cuyo consumo se conozca cada 30 minutos (integración Supervisión de
   energía: Linky a través de Enedis, un índice Lixee o Tasmota…).
 - Un contrato EDF Zen Week-End o Zen Week-End Plus. Ni cuenta, ni clave de API, ni acceso a la red: todo se
@@ -146,7 +146,7 @@ partir de la fecha del cambio. Su factura prevalece siempre sobre los valores pr
 
 ## Solución de problemas
 
-- **Ninguna plantilla en el asistente**: se necesita Gladys 5.2.0 o posterior, y la integración instalada.
+- **Ninguna plantilla en el asistente**: se necesita Gladys 5.3.0 o posterior, y la integración instalada.
 - **Un festivo a precio completo**: compruebe que la integración funcionaba la semana anterior; en sus
   registros, «Published … public holiday(s)» lista las publicaciones.
 - **«Calendario de festivos: lo provee otra integración»** en el widget: otra integración ya proporciona
