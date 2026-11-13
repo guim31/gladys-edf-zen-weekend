@@ -1,6 +1,6 @@
 # EDF Zen Week-End for Gladys Assistant
 
-An external integration for [Gladys Assistant](https://gladysassistant.com) 5.2.0 or later that prices the
+An external integration for [Gladys Assistant](https://gladysassistant.com) 5.3.0 or later that prices the
 French **EDF Zen Week-End** and **Zen Week-End Plus** electricity contracts right:
 
 - **four contract templates** in the energy contract wizard of Gladys (Energy Monitoring → Contracts): the
@@ -28,7 +28,7 @@ every 30 minutes and also fires on a mere change of period name).
 
 ## Requirements
 
-- Gladys Assistant 5.2.0 or later.
+- Gladys Assistant 5.3.0 or later.
 - An electric meter in Gladys with its 30-minute consumption (Energy Monitoring integration).
 
 ## Installation

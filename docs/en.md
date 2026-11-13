@@ -20,7 +20,7 @@ heater or the car charge), a **scene action** that tells your scenes the period 
 
 ## What you need
 
-- Gladys Assistant **5.2.0** or later (energy contracts).
+- Gladys Assistant **5.3.0** or later (catalog countries; energy contracts need 5.2.0).
 - An electric meter in Gladys whose consumption is known every 30 minutes (Energy Monitoring
   integration: Linky through Enedis, a Lixee or Tasmota index…).
 - An EDF Zen Week-End or Zen Week-End Plus contract. No account, no API key, no network access: everything
@@ -144,7 +144,7 @@ Always trust your bill over the pre-filled values.
 
 ## Troubleshooting
 
-- **No template in the wizard**: Gladys 5.2.0 or later is required, and the integration must be installed.
+- **No template in the wizard**: Gladys 5.3.0 or later is required, and the integration must be installed.
 - **A holiday priced at the full price**: check that the integration was running the week before; in its
   logs, "Published … public holiday(s)" lists the publications.
 - **"Holiday calendar: fed by another integration"** in the widget: another integration already provides

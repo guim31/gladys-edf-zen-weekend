@@ -62,8 +62,8 @@ test('identity: name, type, image, cover, transports, category', () => {
   assert.deepEqual(manifest.categories, ['energy']);
 });
 
-test('energy_contracts is in Gladys 5.2.0 and later only', () => {
-  assert.deepEqual(minGladysVersion(), [5, 2, 0]);
+test('energy_contracts is in Gladys 5.2.0 and later, countries in 5.3.0', () => {
+  assert.deepEqual(minGladysVersion(), [5, 3, 0]);
 });
 
 test('the manifest stays well under the 100 KB the store indexer reads', async () => {
@@ -186,4 +186,9 @@ test('the catalog description holds 10 to 100 characters per language', () => {
   for (const [lang, text] of Object.entries(manifest.description)) {
     assert.ok(text.length >= 10 && text.length <= 100, `description.${lang}: ${text.length}`);
   }
+});
+
+test('the catalog countries: France, which needs Gladys >= 5.3.0', () => {
+  assert.deepEqual(manifest.countries, ['FR']);
+  assert.match(manifest.gladys_version, /^>=\s*5\.3\.0$/, 'countries needs Gladys 5.3.0');
 });

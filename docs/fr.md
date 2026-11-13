@@ -20,7 +20,7 @@ période en cours, et un **widget « Heures creuses »** pour le tableau de bord
 
 ## Ce qu'il faut
 
-- Gladys Assistant **5.2.0** ou plus récent (contrats d'énergie).
+- Gladys Assistant **5.3.0** ou plus récent (pays du catalogue ; contrats d'énergie dès 5.2.0).
 - Un compteur électrique dans Gladys dont la consommation est connue toutes les 30 minutes (intégration
   Suivi de l'énergie : Linky via Enedis, index Lixee ou Tasmota…).
 - Un contrat EDF Zen Week-End ou Zen Week-End Plus. Ni compte, ni clé d'API, ni accès réseau : tout est
@@ -147,7 +147,7 @@ date du changement. Votre facture fait toujours foi face aux valeurs pré-rempli
 
 ## Dépannage
 
-- **Aucun modèle dans l'assistant** : il faut Gladys 5.2.0 ou plus récent, et l'intégration installée.
+- **Aucun modèle dans l'assistant** : il faut Gladys 5.3.0 ou plus récent, et l'intégration installée.
 - **Un jour férié au plein tarif** : vérifiez que l'intégration tournait la semaine d'avant ; dans ses
   journaux, « Published … public holiday(s) » liste les publications.
 - **« Calendrier des fériés : fourni par une autre intégration »** dans le widget : une autre intégration
